@@ -1,0 +1,32 @@
+{% if song %}
+    <h2>song name:{{ song.song_name }}</h2>
+    <h2>song id:{{ song.id }}</h2>
+    <ul>
+    {% for songword in song.songwords_set.all %}
+        <li><a href="{% url 'words' song.id  %}">Each word of : {{ songword.song }}</a></li>
+        <li>song words:{{ songword.song_words }}</li>
+        {% for word in songword.word_set.all %}
+            <br>
+            <li>Word id:{{ word.id }}</li>
+            <li>Word at song:{{ word.song.song.song_name }}</li>
+            <li>The word:{{ word.word }}</li>
+        {% endfor %}
+    {% endfor %}
+    </ul>
+
+    {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+    <form action="{% url 'song:words' song.id %}" method="post">
+    {% csrf_token %}
+    {% for songword in song.songwords_set.all %}
+        <input type="radio" name="songword" id="choice{{ forloop.counter }}" value="{{ songword.id }}" />
+        <label for="songword{{ forloop.counter }}">{{ songword.song.song_name }}</label><br />
+    {% endfor %}
+    <input type="submit" value="Songword" />
+    </form>
+
+{% else %}
+    <p>No songs are available.</p>
+{% endif %}
+
+

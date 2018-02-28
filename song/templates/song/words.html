@@ -1,0 +1,15 @@
+{% if song %}
+    <h2>song name:{{ song.song_name }}</h2>
+    <h2>song id:{{ song.id }}</h2>
+    <ul>
+    {% for songword in song.songwords_set.all %}
+        {% for word in songword.word_set.all %}
+            <li>Word id:{{ word.id }}</li>
+            <li>Word at song:{{ word.song }}</li>
+            <li>The word:{{ word.word }}</li>
+        {% endfor %}
+    {% endfor %}  
+    </ul> 
+{% else %}
+<p>No songs are available.</p>
+{% endif %}
