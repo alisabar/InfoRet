@@ -1,5 +1,7 @@
 from django.contrib import admin
-from .models import Song
+from .models import Songs, Words, WordsOfSongs
 
-admin.site.register(Song)
+admin.site.register(Songs)
+admin.site.register(Words)
+admin.site.register(WordsOfSongs)
 # Register your models here.
