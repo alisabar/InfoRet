@@ -4,7 +4,7 @@ from django.db import models
 class Songs(models.Model):
     song_name= models.CharField(max_length=300)
     author_name= models.CharField(max_length=300)
-    song_url= models.CharField(max_length=1000)
+    song_url= models.CharField(max_length=10000)
     def __str__(self):
         return ' song_name: %s , author_name: %s ,song_url: %s \n' % (self.song_name, self.author_name, self.song_url)
 
