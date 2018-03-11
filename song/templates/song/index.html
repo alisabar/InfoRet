@@ -10,8 +10,8 @@
     <li><a href="{% url 'detail' song.id %}">Song details</a></li>
     {% endfor %}
     </ul>
-    <form name="search" action="{% url 'search_by_word' %}" method="post">
-        Search by word: <input type="text" name="searchword">
+    <form name="enter_file" action="{% url newfile %}" method="post">
+        file url: <input type="text" name="link">
         <input type="submit" value="Submit" />
     </form>
 

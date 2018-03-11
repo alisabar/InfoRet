@@ -19,16 +19,42 @@ def index(request):
 
 def detail(request,song_id):
     songdetails = get_object_or_404(Songs, pk=song_id)
-    #  songdetails = Songs.objects.get(pk=song_id)
-    detail=parse_url(songdetails)
 
+    #  songdetails = Songs.objects.get(pk=song_id)
+  
+
+ 
     return render(request,'song/detail.html',{ 'content':detail, 'songdetails':songdetails  })
 
-def parse_url(songdetails):
+def create_tables (request)
+{
+    url=request.POST['link']
+    detail=parse_url(url)
+    name=detail.title
+    author=""
+
+    content = detail.title.lower().replace('.','').replace('!','').replace(',','').replace('?','').replace('(','').replace(')','').replace('-','').replace('*','')..replace(']','').replace('[','')
+    content = content + detail.body.lower().replace('.','').replace('!','').replace(',','').replace('?','').replace('(','').replace(')','').replace('-','').replace('*','')..replace(']','').replace('[','')
+    content.sorted()
+    for word in set(content.split()):
+        indexes = [w.start() for w in re.finditer(word, content)]
+        #print(word, len(indexes), indexes)
+        w=Words.create(word=word, num_docs=song_id, times=len(indexes))
+        s=w.songs_set.create(song_name=name, author_name=author, song_url=url)
+
+  
+    context = {
+        'doc': s,
+        'words': w,
+    }
+
+    return render(request,'song/newfile.html',{ 'context':contex })
+}
+def parse_url(song_url):
  
    # song = Songs.objects.get(pk=song_id)
    # url=song.song_url('https://en.wikipedia.org/wiki/Hayim_Nahman_Bialik')
-    page = requests.get(songdetails.song_url)
+    page = requests.get(song_url)
 
     tree = html.fromstring(page.content)
 
