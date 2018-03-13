@@ -1,20 +1,24 @@
-{% if doc %}
-    {% if words %}
-    {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
-    
-    <h1>{{doc.song_name}}</h1>
-    <h3>{{doc.author_name}}</h3>
-    <h3>{{doc.song_url}}</h3>
-
-    <ul>
-    {% for word in words %}
-    <li>Term: {{word.word}}</li>
-    <li>Doc Id: {{word.num_docs}}</li>
-    <li>No of appearences: {{ word.num_docs }}</li>
-    <br>
-    {% endfor %}
-    </ul>
+{% if error %}
+    <h1>{{error}}</h1>
 
 {% else %}
-    <p>No songs are available.</p>
+    {% if doc %}
+        
+        <h1>{{document.song_name}}</h1>
+        <h3>{{document.author_name}}</h3>
+        <h3>{{document.song_url}}</h3>
+     
+ 
+        <ul>
+        {% for word in document.words_set.all() %}
+        <li>Term: {{word.word}}</li>
+        <li>No of appearences: {{ word.times }}</li>
+        <li>Indexes: {{ word.indexes }}</li>
+        <br>
+        {% endfor %}
+        </ul>
+
+    {% else %}
+        <p>No doc available.</p>
+    {% endif %}
 {% endif %}

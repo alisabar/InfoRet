@@ -1,21 +1,18 @@
 from django.shortcuts import render, get_object_or_404
 from django.template import loader
 from django.http import HttpResponse, Http404
-from .models import Songs, Words, WordsOfSongs
+from .models import Songs, Words
 from lxml import html
+import re
 import requests
 import logging
+from django.utils.datastructures import MultiValueDictKeyError
 # Create your views here.
 
 def index(request):
 
-    song_list = Songs.objects.order_by('song_name')
 
-    context = {
-        'song_list': song_list,
-    }
-
-    return render(request,'song/index.html',context)
+    return render(request,'song/index.html')
 
 def detail(request,song_id):
     songdetails = get_object_or_404(Songs, pk=song_id)
@@ -26,30 +23,65 @@ def detail(request,song_id):
  
     return render(request,'song/detail.html',{ 'content':detail, 'songdetails':songdetails  })
 
-def create_tables (request)
-{
-    url=request.POST['link']
-    detail=parse_url(url)
-    name=detail.title
-    author=""
+def create_tables(request):
+    
+    try:
+        url=request.POST['link']
+        detail=parse_url(url)
+        author=""
 
-    content = detail.title.lower().replace('.','').replace('!','').replace(',','').replace('?','').replace('(','').replace(')','').replace('-','').replace('*','')..replace(']','').replace('[','')
-    content = content + detail.body.lower().replace('.','').replace('!','').replace(',','').replace('?','').replace('(','').replace(')','').replace('-','').replace('*','')..replace(']','').replace('[','')
-    content.sorted()
-    for word in set(content.split()):
-        indexes = [w.start() for w in re.finditer(word, content)]
-        #print(word, len(indexes), indexes)
-        w=Words.create(word=word, num_docs=song_id, times=len(indexes))
-        s=w.songs_set.create(song_name=name, author_name=author, song_url=url)
+        detail_title=detail['title']
+        detail_body=detail['body']
+        sentence=''
+        mid=''
+        if not (detail_title is None):
+            for x in range(len(detail_title)):
+                mid=detail_title[x]
+                mid=mid.lower()
+                mid= mid.replace('.','').replace('!','').replace(',','').replace('?','').replace('(','').replace(')','').replace('-','').replace('*','')
+                sentence= sentence+' '+mid
 
-  
-    context = {
-        'doc': s,
-        'words': w,
-    }
+        else:
+            s="no title"
 
-    return render(request,'song/newfile.html',{ 'context':contex })
-}
+        if not (detail_body is None):
+        
+            for x in range(len(detail_body)):
+                mid=detail_body[x]
+                mid= mid.lower()
+                mid= mid.replace('.','').replace('!','').replace(',','').replace('?','').replace('(','').replace(')','').replace('-','').replace('*','')
+                sentence= sentence+' '+mid
+        else:
+            w="no body"
+
+        if len(sentence)>0:
+            numbers=''
+            s=Songs(song_name=detail_title, author_name=author, song_url=url)
+            s.save()
+            for word in set(sentence.split()):
+
+                indexes = [w.start() for w in re.finditer(word, sentence)]
+                for i in range(len(indexes)):
+                    numbers=numbers+" "+str(indexes[i])
+
+                w=Words(song=s, word=word, times=len(indexes), indexes=numbers)
+                w.save(force_insert=True)
+                s.words_set.add(w)
+                
+                s.save()
+                numbers=''
+        else:        
+            error_msg="Didnt split"
+
+        document = get_object_or_404(Songs, id=s.id) 
+        warning={
+            'error':"There is no url enetred",
+        }
+    except MultiValueDictKeyError:
+        return render(request,'song/newfile.html',{ 'warning':warning })
+
+    return render(request,'song/newfile.html',{ 'context':document })
+
 def parse_url(song_url):
  
    # song = Songs.objects.get(pk=song_id)

@@ -1,25 +1,13 @@
-{% if song_list %}
-    {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
-    <ul>
-    {% for song in song_list %}
-     <li>song id: {{song.id}}</li>
-    <li>Author: {{song.author_name}}</li>
-    <li>Title: {{ song.song_name }}</li>
-    <li>Url: {{  song.song_url }}</li>
-    <li><a href="{% url 'detail' song.id %}">Song details</a></li>
-    {% endfor %}
-    </ul>
-    <form name="enter_file" action="{% url newfile %}" method="post">
+    <form name="enter_file" action="{% url 'newfile' %}" method="post">
+    {% csrf_token %}
         file url: <input type="text" name="link">
         <input type="submit" value="Submit" />
     </form>
 
 
 
-{% else %}
-    <p>No songs are available.</p>
-{% endif %}
+
 
 
 

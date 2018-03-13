@@ -5,7 +5,7 @@
     {% for songword in song.songwords_set.all %}
         {% for word in songword.word_set.all %}
             <li>Word id:{{ word.id }}</li>
-            <li>Word at song:{{ word.song }}</li>
+        
             <li>The word:{{ word.word }}</li>
         {% endfor %}
     {% endfor %}  
