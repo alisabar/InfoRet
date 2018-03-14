@@ -29,7 +29,7 @@ def create_tables(request):
         url=request.POST['link']
         detail=parse_url(url)
         author=""
-
+        stop_words=['a href',]
         detail_title=detail['title']
         detail_body=detail['body']
         sentence=''
@@ -74,13 +74,12 @@ def create_tables(request):
             error_msg="Didnt split"
 
         document = get_object_or_404(Songs, id=s.id) 
-        warning={
-            'error':"There is no url enetred",
-        }
+        context = {'document': document}
+        warning={'error':"There is no url enetred"}
     except MultiValueDictKeyError:
-        return render(request,'song/newfile.html',{ 'warning':warning })
+        return render(request,'song/newfile.html',warning)
 
-    return render(request,'song/newfile.html',{ 'context':document })
+    return render(request,'song/newfile.html',context)
 
 def parse_url(song_url):
  
@@ -91,7 +90,7 @@ def parse_url(song_url):
     tree = html.fromstring(page.content)
 
     title = tree.xpath('//h1[@class="firstHeading"]/text()')
-    body= tree.xpath('//div[@class="mw-parser-output"]/p/text()')
+    body= tree.xpath('//div[@class="mw-parser-output"]/p[14]/text()')
     context = {
         'title': title,
         'body': body,
