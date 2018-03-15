@@ -8,15 +8,21 @@
         <h3>{{document.author_name}}</h3>
         <h3>{{document.song_url}}</h3>
      
- 
-        <ul>
+        <table style="width:100%">
+        <tr>
+        <th>Term</th>
+        <th>Appearences</th> 
+        <th>Indexes</th>
+        </tr>
+    
         {% for word in document.words_set.all %}
-        <li>Term: {{word.word}}</li>
-        <li>No of appearences: {{ word.times }}</li>
-        <li>Indexes: {{ word.indexes }}</li>
-        <br>
+        <tr>
+        <th>{{word.word}}</th>
+        <th>{{ word.times }}</th>
+        <th>{{ word.indexes }}</th>
+        </tr>
         {% endfor %}
-        </ul>
+        </table>
 
     {% else %}
         <p>No document available.</p>

@@ -1,26 +1,27 @@
-{% if content %}
-    <h2>song id:{{ songdetails.id }}</h2>
-    <h2>title:{{ content.title }}</h2>
-    <h2>body:{{ content.body }}</h2>
-    
 
-    {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
-
+{% if document %}
     
+    <h1>{{document.song_name}}</h1>
+    <h3>{{document.author_name}}</h3>
+    <h3>{{document.song_url}}</h3>
+ 
+    <table style="width:100%">
+    <tr>
+    <th>Term</th>
+    <th>No of appearences</th> 
+    <th>Indexes</th>
+    </tr>
+
+    {% for word in document.words_set.all %}
+    <tr>
+    <th>{{word.word}}</th>
+    <th>{{ word.times }}</th>
+    <th>{{ word.indexes }}</th>
+    </tr>
+    {% endfor %}
+    </table>
+
 {% else %}
-    <p>No songs are available.</p>
+    <p>No document available.</p>
 {% endif %}
 
-
-{% if song_list %}
-    {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
-
-    <ul>
-    {% for song in song_list %}
-     <li>song id: {{song.id}}</li>
-    <li>Author: {{song.author_name}}</li>
-    <li>Title: {{ song.song_name }}</li>
-    <li>Url: {{  song.song_url }}</li>
-    <li><a href="{% url 'detail' song.id %}">Song details</a></li>
-    {% endfor %}
-    </ul>
