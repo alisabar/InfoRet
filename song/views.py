@@ -83,20 +83,31 @@ def create_tables(request):
 
         if len(sentence)>0:
             numbers=''
-            s=Songs(song_name=detail_title, author_name=author, song_url=url)
-            s.save()
+            s1=Songs(song_name=detail_title, author_name=author, song_url=url)
+            s1.save()
             for word in set(sentence.split()):
 
                 indexes = [w.start() for w in re.finditer(word, sentence)]
                 for i in range(len(indexes)):
                     numbers=numbers+" "+str(indexes[i])
 
-                w=Words(song=s, word=word, times=len(indexes), indexes=numbers)
-                w.save(force_insert=True)
-                s.words_set.add(w)
-                
-                s.save()
-                numbers=''
+                word_exists= Words.objects.filter(word=word)
+                if not (word_exists is None):
+                    new_song_of_the_existing_word= word_exists.Songofword.create(song=s1, times=len(indexes), indexes=numbers)
+                    word_exists.save()
+                    s1.songofword_set.add(new_song_of_the_existing_word)
+                    s1.save()
+                    numbers=''
+                else
+
+                    new_word=Words(word=word)
+                    new_word.save(force_insert=True)
+                    new_song_of_the_new_word=new_word.Songofword.create(song=s1, times=len(indexes), indexes=numbers)
+                    new_word.save()
+                  
+                    s1.songofword_set.add(new_song_of_the_new_word)
+                    s1.save()
+                    numbers=''
         else:        
             error_msg="Didnt split"
 

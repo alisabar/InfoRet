@@ -9,14 +9,21 @@ class Songs(models.Model):
     def __str__(self):
         return ' song_name: %s , author_name: %s ,song_url: %s \n' % (  self.song_name, self.author_name, self.song_url)
 
-
-class Words(models.Model): 
+class Songofword(models.Model): 
     song= models.ForeignKey(Songs, on_delete=models.CASCADE)
-    word=models.CharField(max_length=100)
     times=models.IntegerField(default=0)
     indexes=models.CharField(max_length=100)
     def __str__(self):
-        return 'song: %s, word: %s, times: %d , indexes: %s \n' % (self.song, self.word, self.times, self.indexes)
+        return 'song: %s, times: %d , indexes: %s \n' % (self.song, self.times, self.indexes)
+
+
+class Words(models.Model): 
+    songs= models.ManyToManyField(Songofword)
+    
+    word=models.CharField(max_length=100)
+
+    def __str__(self):
+        return 'songs: %s, word: %s \n' % (self.songs, self.word)
 
 
     
