@@ -1,13 +1,14 @@
 from django.shortcuts import render, get_object_or_404
 from django.template import loader
 from django.http import HttpResponse, Http404
-from .models import Songs, Words
+from .models import Songs, Words, Songofword
 from lxml import html
 import re
 import requests
 import logging
 from bs4 import BeautifulSoup
 from django.utils.datastructures import MultiValueDictKeyError
+
 # Create your views here.
 
 def index(request):
@@ -82,6 +83,8 @@ def create_tables(request):
             w="no body"
 
         if len(sentence)>0:
+            logger= logging.getLogger(__name__)
+            
             numbers=''
             s1=Songs(song_name=detail_title, author_name=author, song_url=url)
             s1.save()
@@ -90,32 +93,48 @@ def create_tables(request):
                 indexes = [w.start() for w in re.finditer(word, sentence)]
                 for i in range(len(indexes)):
                     numbers=numbers+" "+str(indexes[i])
-
-                word_exists= Words.objects.filter(word=word)
-                if not (word_exists is None):
-                    new_song_of_the_existing_word= word_exists.Songofword.create(song=s1, times=len(indexes), indexes=numbers)
-                    word_exists.save()
-                    s1.songofword_set.add(new_song_of_the_existing_word)
-                    s1.save()
-                    numbers=''
-                else
-
+                
+                if (Words.objects.filter(word=word).count()>0):
+                    word_exists=Words.objects.filter(word=word)
+                    if(word_exists.songs.song.song_name!=detail_title):
+                        new_song_of_the_existing_word=Songofword(song=s1, times=len(indexes), indexes=numbers)
+                        new_song_of_the_existing_word.save()
+                      
+                        #new_song_of_the_existing_word.words_set.add(word_exists)
+                        word_exists.songs.add(new_song_of_the_existing_word)
+                        word_exists.save()
+                      
+                     
+                        #word_exists.songs.add(new_song_of_the_existing_word)
+                       # word_exists.save()
+                        s1.songofword_set.add(new_song_of_the_existing_word)
+                        s1.save()
+                        numbers=''
+                else:
                     new_word=Words(word=word)
-                    new_word.save(force_insert=True)
-                    new_song_of_the_new_word=new_word.Songofword.create(song=s1, times=len(indexes), indexes=numbers)
                     new_word.save()
-                  
+                    logger.error(new_word)
+
+                    new_song_of_the_new_word=Songofword(song=s1, times=len(indexes), indexes=numbers)
+                    new_song_of_the_new_word.save()
+                    
+                    new_word.songs.add(new_song_of_the_new_word)
+                    new_word.save()
+                    #new_song_of_the_new_word.words_set.add(new_word)
+                   # new_song_of_the_new_word.save()
+                    #new_word.songs.add(new_song_of_the_new_word)
+                   
                     s1.songofword_set.add(new_song_of_the_new_word)
                     s1.save()
                     numbers=''
         else:        
             error_msg="Didnt split"
 
-        document = get_object_or_404(Songs, id=s.id) 
+        document = get_object_or_404(Songs, id=s1.id) 
         context = {'document': document}
-        warning={'error':"There is no url enetred"}
+       # warning={'error':"There is no url enetred"}
     except MultiValueDictKeyError:
-        return render(request,'song/newfile.html',warning)
+        return render(request,'song/newfile.html',{'error':"There is no url enetred"})
 
     return render(request,'song/newfile.html',context)
 
