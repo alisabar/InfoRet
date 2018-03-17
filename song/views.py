@@ -8,6 +8,7 @@ import requests
 import logging
 from bs4 import BeautifulSoup
 from django.utils.datastructures import MultiValueDictKeyError
+from django.db.models import Q
 
 # Create your views here.
 
@@ -155,7 +156,7 @@ def parse_url(song_url):
     return  context
 
 def search(request):
-    filters=[]
+    filters=Q()
     excludes=[]
     word_searching=[]
     search_word=request.POST['search_text']
@@ -165,17 +166,18 @@ def search(request):
 
     for term in terms:
         temp=operator_and(term)
-        print(temp)
         for i in temp:
             if (i.find(" or ")==-1):
-                filters.append(i)
+                filters.add(Q(songofword__word__word=i),Q.AND)
             else:
                 temp2=operator_or(i)
                 for j in temp2:
-                    filters.append("|"+j)        
+                    filters.add(Q(songofword__word__word=j),Q.OR)
 
+    results=Songs.objects.filter(filters)
+    print(results)                     
 
-    return render(request, 'song/result.html', {'song_list': filters})
+    return render(request, 'song/result.html', {'song_list': results})
 
 
 def search_by_word(request):
@@ -209,7 +211,6 @@ def sentences_split(wrd):
     while(flag):
         if(j<i2):
             temp=end_sentences[j]
-            print(end_sentences[j])
             j+=1
         if temp is not "" and temp is not begin_sentences[i]:
             results.append(temp)   
