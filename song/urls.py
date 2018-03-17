@@ -17,9 +17,13 @@ urlpatterns = [
     # ex: /song/5/words/
     path('<int:song_id>/words/', views.words, name='words'),
 
+<<<<<<< HEAD
     path('search/', views.search, name='search'),
 
      path('searchindex/', views.searchindex, name='searchindex'),
+=======
+    path('search/', views.search_by_word, name='search_by_word'),
+>>>>>>> ec7d04718fd16ffeb2c751a306b1f0882c9b1dfc
 ]
 
 
