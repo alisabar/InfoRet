@@ -42,13 +42,6 @@ def wasdeleted(request):
     doc_list=(request.POST['slected_document_ids']).split(",")
     for doc in doc_list:
         detele_document(int(doc))
-    
-
-
-    #doc_list=request.POST['docs_list']
-    #for doc in doc_list:
-    #    detele_document(doc.id)
-
     return render(request,'song/wasdeleted.html')
 
 def create_posting_file(word_exists ,song, indexes, numbers):
@@ -62,10 +55,14 @@ def song_exists(song_name):
 def get_song(song_name):
     return Songs.objects.filter(song_name=song_name)[:1].get()
 
-def clean_text(text){
+def clean_text(text):
     text=text.lower()
-    return text.replace('.','').replace('!','').replace(',','').replace('?','').replace('(','').replace(')','').replace('-','').replace('*','')                
-}
+    return text.replace('.',' ').replace('!',' ').replace(',',' ').replace('?',' ').replace('(',' ').replace(')',' ').replace('-',' ').replace('*',' ')                
+
+def get_indexes(word,sentence):
+    pattern="\\b"+word+"\\b"
+    indexes = [w.start() for w in re.finditer(pattern, sentence)]
+    return indexes
 
 def create_tables(request):
     
@@ -79,18 +76,11 @@ def create_tables(request):
         sentence=''
         mid=''
         if not (detail_title is None): 
-                mid=detail_title
-                mid=mid.lower()
-                mid= mid.replace('.','').replace('!','').replace(',','').replace('?','').replace('(','').replace(')','').replace('-','').replace('*','')
-                sentence= sentence+' '+mid
-
+                sentence= sentence+' '+clean_text(detail_title)
         else:
             s="no title"
         if not (detail_body is None):
-                mid2=detail_body
-                mid22= mid.lower()
-                mid= mid.replace('.','').replace('!','').replace(',','').replace('?','').replace('(','').replace(')','').replace('-','').replace('*','')
-                sentence= sentence+' '+mid2
+                sentence= sentence+' '+clean_text(detail_body)
         else:
             w="no body"
 
@@ -108,8 +98,8 @@ def create_tables(request):
                 song.save()     
 
             for word in set(sentence.split()):
-
-                indexes = [w.start() for w in re.finditer(word, sentence)]
+                indexes = get_indexes(word, sentence);
+                #indexes = [w.start() for w in re.finditer(word, sentence)]
                 for i in range(len(indexes)):
                     numbers=numbers+" "+str(indexes[i])
                 
