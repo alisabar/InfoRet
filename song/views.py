@@ -16,14 +16,10 @@ def index(request):
 
     return render(request,'song/index.html')
 
-<<<<<<< HEAD
 def searchindex(request):
-
 
     return render(request,'song/searchindex.html')
 
-=======
->>>>>>> ec7d04718fd16ffeb2c751a306b1f0882c9b1dfc
 def detail(request,song_id):
     try:
         document = Songs.objects.get(pk=song_id)
@@ -43,11 +39,6 @@ def detele_document(song_id):
     
     document = get_object_or_404(Songs, pk=song_id)
     document.delete()
-<<<<<<< HEAD
-
-=======
-    
->>>>>>> ec7d04718fd16ffeb2c751a306b1f0882c9b1dfc
 
 def wasdeleted(request):
     #import pdb; pdb.set_trace()
@@ -163,9 +154,6 @@ def parse_url(song_url):
     logger.error(context)
     return  context
 
-<<<<<<< HEAD
-
-
 def search(request):
     filters=[]
     excludes=[]
@@ -188,7 +176,8 @@ def search(request):
 
 
     return render(request, 'song/result.html', {'song_list': filters})
-=======
+
+
 def search_by_word(request):
     try:
         song_list = Songs.objects.order_by('song_name')
@@ -198,7 +187,6 @@ def search_by_word(request):
     except Songs.DoesNotExist:
         raise Http404("Song does not exist")
     return render(request, 'song/search.html', {'song': context})
->>>>>>> ec7d04718fd16ffeb2c751a306b1f0882c9b1dfc
 
 
 def words(request):
@@ -207,7 +195,6 @@ def words(request):
     except Songs.DoesNotExist:
         raise Http404("Song does not exist")
 
-<<<<<<< HEAD
     return render(request, 'song/words.html', {'song': songwords})
 
 def sentences_split(wrd):
@@ -248,7 +235,3 @@ def operator_or(sntc):
 
 
 
-
-=======
-    return render(request, 'song/words.html', {'song': songwords})
->>>>>>> ec7d04718fd16ffeb2c751a306b1f0882c9b1dfc
