@@ -1,0 +1,52 @@
+{% if document_list %}
+
+
+<script
+  src="https://code.jquery.com/jquery-1.12.4.min.js"
+  integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="
+  crossorigin="anonymous"></script>
+
+
+  <script type="text/javascript">
+      $(function(){
+                $('#all_songs_form').submit(function() {
+                
+                    var values=[];
+                    var checkboxes = $("table#all_songs_container input[type=checkbox]:checked");
+                    for(var x = 0 ; x < checkboxes.length ; x++){
+                        values.push($(checkboxes[x]).val());
+                    }
+                    var ids=values.join();
+                    $("#slected_document_ids").val(ids);         
+                return true; 
+            });
+      });
+  </script>
+
+<form id="all_songs_form" action="{% url 'wasdeleted' %}" method="post">
+<input id="slected_document_ids" type="hidden" name="slected_document_ids"/>
+{% csrf_token %}
+    <table id="all_songs_container" style="width:100%">
+    <tr>
+    <th>id</th>
+    <th>title</th>
+    <th>url</th> 
+    <th>delete</th>
+    </tr>
+    {% for document in document_list %}
+
+        <tr>
+        <th>{{document.id}}</th>
+        <th><a href="{% url 'detail' document.id %}">{{document.song_name}}</th>
+        <th><a href="document.song_url">{{document.song_url}}</th>
+        <th> <input type="checkbox" id="document{{ forloop.counter }}" name="docs_list" value="{{document.id}}">
+        <label for="document{{ forloop.counter }}"></label></th>
+        </tr>
+    {% endfor %}
+    </table>
+
+<input type="submit" value="Delete" />
+</form>
+{% else %}
+    <p>No document available.</p>
+{% endif %}

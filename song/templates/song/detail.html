@@ -1,0 +1,27 @@
+
+{% if document %}
+    
+    <h1>{{document.song_name}}</h1>
+    <h3>{{document.author_name}}</h3>
+    <h3>{{document.song_url}}</h3>
+ 
+    <table style="width:100%">
+    <tr>
+    <th>Term</th>
+    <th>No of appearences</th> 
+    <th>Indexes</th>
+    </tr>
+
+    {% for wordofsong in document.songofword_set.all %}
+    <tr>
+    <th>{{ wordofsong.word_set.all[1].word }}</th>
+    <th>{{ wordofsong.times }}</th>
+    <th>{{ wordofsong.indexes }}</th>
+    </tr>
+    {% endfor %}
+    </table>
+
+{% else %}
+    <p>No document available.</p>
+{% endif %}
+

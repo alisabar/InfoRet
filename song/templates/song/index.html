@@ -1,0 +1,15 @@
+
+    <form name="enter_file" action="{% url 'newfile' %}" method="post">
+    {% csrf_token %}
+        file url: <input type="text" name="link">
+        <input type="submit" value="Submit" />
+    </form>
+
+
+
+
+
+
+
+
+

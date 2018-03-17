@@ -1,0 +1,5 @@
+    <form name="enter_file" action="{% url 'search' %}" method="post">
+    {% csrf_token %}
+        search: <input type="text" name="search_text">
+        <input type="submit" value="Submit" />
+    </form>
