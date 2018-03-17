@@ -51,6 +51,17 @@ def wasdeleted(request):
 
     return render(request,'song/wasdeleted.html')
 
+def create_posting_file(word_exists ,song, indexes, numbers):
+    new_song_of_the_word=Songofword(word=word_exists ,song=song, times=len(indexes), indexes=numbers)
+    new_song_of_the_word.save()
+    return 
+
+def song_exists(song_name):
+    return Songs.objects.filter(song_name=song_name).count()>0
+
+def get_song(song_name):
+    return Songs.objects.filter(song_name=song_name)[:1].get()
+
 def create_tables(request):
     
     try:
@@ -62,8 +73,7 @@ def create_tables(request):
         detail_body=detail['body']
         sentence=''
         mid=''
-        if not (detail_title is None):
-            #for x in range(len(detail_title)):
+        if not (detail_title is None): 
                 mid=detail_title
                 mid=mid.lower()
                 mid= mid.replace('.','').replace('!','').replace(',','').replace('?','').replace('(','').replace(')','').replace('-','').replace('*','')
@@ -71,10 +81,7 @@ def create_tables(request):
 
         else:
             s="no title"
-
         if not (detail_body is None):
-        
-           # for x in range(len(detail_body)):
                 mid2=detail_body
                 mid22= mid.lower()
                 mid= mid.replace('.','').replace('!','').replace(',','').replace('?','').replace('(','').replace(')','').replace('-','').replace('*','')
@@ -86,51 +93,40 @@ def create_tables(request):
             logger= logging.getLogger(__name__)
             
             numbers=''
-            s1=Songs(song_name=detail_title, author_name=author, song_url=url)
-            s1.save()
+            
+            #get_song(song_name=detail_title) if 
+            song=None
+            if(song_exists(song_name=detail_title)):
+                song=get_song(song_name=detail_title)
+            else:
+                song=Songs(song_name=detail_title, author_name=author, song_url=url)
+                song.save()     
+
             for word in set(sentence.split()):
 
                 indexes = [w.start() for w in re.finditer(word, sentence)]
                 for i in range(len(indexes)):
                     numbers=numbers+" "+str(indexes[i])
                 
-                if (Words.objects.filter(word=word).count()>0):
-                    word_exists=Words.objects.filter(word=word)
-                    if(word_exists.songs.song.song_name!=detail_title):
-                        new_song_of_the_existing_word=Songofword(song=s1, times=len(indexes), indexes=numbers)
-                        new_song_of_the_existing_word.save()
-                      
-                        #new_song_of_the_existing_word.words_set.add(word_exists)
-                        word_exists.songs.add(new_song_of_the_existing_word)
-                        word_exists.save()
-                      
-                     
-                        #word_exists.songs.add(new_song_of_the_existing_word)
-                       # word_exists.save()
-                        s1.songofword_set.add(new_song_of_the_existing_word)
-                        s1.save()
-                        numbers=''
-                else:
-                    new_word=Words(word=word)
-                    new_word.save()
-                    logger.error(new_word)
-
-                    new_song_of_the_new_word=Songofword(song=s1, times=len(indexes), indexes=numbers)
-                    new_song_of_the_new_word.save()
+                #get or create word
+                word=None
                     
-                    new_word.songs.add(new_song_of_the_new_word)
-                    new_word.save()
-                    #new_song_of_the_new_word.words_set.add(new_word)
-                   # new_song_of_the_new_word.save()
-                    #new_word.songs.add(new_song_of_the_new_word)
-                   
-                    s1.songofword_set.add(new_song_of_the_new_word)
-                    s1.save()
-                    numbers=''
+                if (Words.objects.filter(word=word).count()>0):
+                    word=Words.objects.filter(word=word)[:1].get()
+                else:
+                    word=Words(word=word)
+                    word.save()
+                
+                #add relation word<-> dong , if not exits
+                if(word.songs.filter(song_name=song_name).count()==0):
+                    create_posting_file( word ,song, indexes, numbers)
+                
+                #reset state
+                numbers=''
         else:        
             error_msg="Didnt split"
 
-        document = get_object_or_404(Songs, id=s1.id) 
+        document = get_object_or_404(Songs, id=song.id) 
         context = {'document': document}
        # warning={'error':"There is no url enetred"}
     except MultiValueDictKeyError:
@@ -140,7 +136,6 @@ def create_tables(request):
 
 
 def parse_url(song_url):
- 
 
     page = requests.get(song_url)
     soup = BeautifulSoup(page.text, 'html.parser')
