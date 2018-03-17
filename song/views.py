@@ -62,6 +62,11 @@ def song_exists(song_name):
 def get_song(song_name):
     return Songs.objects.filter(song_name=song_name)[:1].get()
 
+def clean_text(text){
+    text=text.lower()
+    return text.replace('.','').replace('!','').replace(',','').replace('?','').replace('(','').replace(')','').replace('-','').replace('*','')                
+}
+
 def create_tables(request):
     
     try:
@@ -109,22 +114,24 @@ def create_tables(request):
                     numbers=numbers+" "+str(indexes[i])
                 
                 #get or create word
-                word=None
+                dbWord=None
                     
                 if (Words.objects.filter(word=word).count()>0):
-                    word=Words.objects.filter(word=word)[:1].get()
+                    dbWord=Words.objects.filter(word=word)[:1].get()
                 else:
-                    word=Words(word=word)
-                    word.save()
+                    dbWord=Words(word=word)
+                    dbWord.save()
                 
                 #add relation word<-> dong , if not exits
-                if(word.songs.filter(song_name=song_name).count()==0):
-                    create_posting_file( word ,song, indexes, numbers)
+                if(dbWord.songs.filter(song_name=detail_title).count()==0):
+                    create_posting_file( dbWord ,song, indexes, numbers)
                 
                 #reset state
                 numbers=''
         else:        
             error_msg="Didnt split"
+
+        #import pdb; pdb.set_trace()
 
         document = get_object_or_404(Songs, id=song.id) 
         context = {'document': document}

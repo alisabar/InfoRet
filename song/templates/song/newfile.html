@@ -15,13 +15,12 @@
         <th>Indexes</th>
         </tr>
     
-        {% for wordofsong in document.songofword_set.all %}
+
+        {% for songofword in document.songofword_set.all %}
         <tr>
-        {% for word in wordofsong.word_set.all %}
-        <th>{{ word.word }}</th>
-        <th>{{ word.times }}</th>
-        <th>{{ word.indexes }}</th>
-        {% endfor %}
+            <th>{{ songofword.word.word }}</th>
+            <th>{{ songofword.times }}</th>
+            <th>{{ songofword.indexes }}</th>
         </tr>
         {% endfor %}
         </table>
