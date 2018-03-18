@@ -1,27 +1,38 @@
+{# Load the tag library #}
+{% load bootstrap3 %}
 
+{# Load CSS and JavaScript #}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{# Display django.contrib.messages as Bootstrap alerts #}
+{% bootstrap_messages %}
 {% if document %}
-    
-    <h1>{{document.song_name}}</h1>
-    <h3>{{document.author_name}}</h3>
-    <h3>{{document.song_url}}</h3>
- 
-    <table style="width:100%">
+<div class="container" style="padding: 1%" >
+    <h2><strong>Song name: </strong> {{document.song_name}}</h2>
+    <h2><strong>Author: </strong> {{document.author_name}}</h2>
+    <h2><strong>Url: </strong> {{document.song_url}}</h2>
+    <br>
+    <h2><strong>Song words:</strong></h2>
+    <br>
+    <table class="table table-bordered">
     <tr>
     <th>Term</th>
-    <th>No of appearences</th> 
+    <th>No' of appearences</th> 
     <th>Indexes</th>
     </tr>
 
-    {% for wordofsong in document.songofword_set.all %}
-    <tr>
-    <th>{{ wordofsong.word_set.all[1].word }}</th>
-    <th>{{ wordofsong.times }}</th>
-    <th>{{ wordofsong.indexes }}</th>
-    </tr>
-    {% endfor %}
+    {% for songofword in document.songofword_set.all %}
+        <tr>
+            <th>{{ songofword.word.word }}</th>
+            <th>{{ songofword.times }}</th>
+            <th>{{ songofword.indexes }}</th>
+        </tr>
+        {% endfor %}
     </table>
 
 {% else %}
     <p>No document available.</p>
 {% endif %}
 
+</div>

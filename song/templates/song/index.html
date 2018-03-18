@@ -1,13 +1,24 @@
+{# Load the tag library #}
+{% load bootstrap3 %}
 
-    <form name="enter_file" action="{% url 'newfile' %}" method="post">
-    {% csrf_token %}
-        file url: <input type="text" name="link">
-        <input type="submit" value="Submit" />
+{# Load CSS and JavaScript #}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{# Display django.contrib.messages as Bootstrap alerts #}
+{% bootstrap_messages %}
+
+<div class="container">
+    <form class="form-horizontal" name="enter_file" action="{% url 'newfile' %}" method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label >File url:</label>
+            <input type="text" name="link" class="form-control" placeholder="File url">
+            <input type="submit" class='btn-primary' value="Submit">
+
+        </div>
     </form>
-
-
-
-
+</div>
 
 
 

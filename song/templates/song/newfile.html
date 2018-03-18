@@ -1,14 +1,26 @@
+{# Load the tag library #}
+{% load bootstrap3 %}
+
+{# Load CSS and JavaScript #}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{# Display django.contrib.messages as Bootstrap alerts #}
+{% bootstrap_messages %}
 {% if error %}
+
     <h1>{{error}}</h1>
 
 {% else %}
     {% if document %}
-        
-        <h1>{{document.song_name}}</h1>
-        <h3>{{document.author_name}}</h3>
-        <h3>{{document.song_url}}</h3>
-     
-        <table style="width:100%">
+    <div class="container" style="padding: 1%" >    
+        <h2><strong>Song name: </strong> {{document.song_name}}</h2>
+        <h2><strong>Author: </strong> {{document.author_name}}</h2>
+        <h2><strong>Url: </strong> {{document.song_url}}</h2>
+        <br>
+        <h2><strong>Song words:</strong></h2>
+        <br>
+        <table class="table table-bordered">
         <tr>
         <th>Term</th>
         <th>Appearences</th> 
@@ -24,7 +36,7 @@
         </tr>
         {% endfor %}
         </table>
-
+    </div>
     {% else %}
         <p>No document available.</p>
     {% endif %}
