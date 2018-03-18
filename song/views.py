@@ -34,18 +34,30 @@ def view(request):
     context = {'document_list': document_list}
     return render(request,'song/allsongs.html',context)
 
-def detele_document(song_id):
-    
-    print ('detele_document '+  str(song_id))
-    
-    document = get_object_or_404(Songs, pk=song_id)
-    document.delete()
+def delete_song(song_id):
 
-def wasdeleted(request):
+    song_to_delete=get_object_or_404(Songs, id=song_id)
+    song_to_delete.is_searchable=0
+    song_to_delete.save() 
+
+def delete_word(word_id):
+
+    word_to_delete=get_object_or_404(Words, id=word_id)
+    word_to_delete.is_searchable=0
+    word_to_delete.save()
+
+def songwasdeleted(request):
     #import pdb; pdb.set_trace()
     doc_list=(request.POST['slected_document_ids']).split(",")
     for doc in doc_list:
-        detele_document(int(doc))
+        detele_song(int(doc))
+    return render(request,'song/wasdeleted.html')
+
+def wordwasdeleted(request):
+    #import pdb; pdb.set_trace()
+    doc_list=(request.POST['slected_document_ids']).split(",")
+    for doc in doc_list:
+        detele_word(int(doc))
     return render(request,'song/wasdeleted.html')
 
 def create_posting_file(word_exists ,song, indexes, numbers):
@@ -64,7 +76,8 @@ def clean_text(text):
     body=str(text)
     body= body.replace('<div class="dn" id="content_h">',' ').replace('<br/>',' ').replace('</div>',' ')
     body=body.lower()
-    return body.replace('.',' ').replace('!',' ').replace(',',' ').replace('?',' ').replace('(',' ').replace(')',' ').replace('-',' ').replace('*',' ').replace('–',' ').replace('[',' ').replace(']',' ').replace('\"',' ')         
+
+    return body.replace('.',' ').replace('!',' ').replace(',',' ').replace('?',' ').replace('(',' ').replace(')',' ').replace('-',' ').replace('*',' ').replace('–',' ').replace('[',' ').replace(']',' ').replace('\"',' ').replace('\'ll',' will ').replace('\'s',' ').replace('\'d',' would ').replace("'cause","because")      
 
 def get_indexes(word,sentence):
     pattern="\\b"+word+"\\b"
@@ -88,7 +101,7 @@ def create_tables(request):
                 author = detail_title.split("–")[0]
                 name=detail_title.split("–")[1:]
                 name=str(name)
-                name=name.replace('[',' ').replace(']',' ').replace("'",' ')
+                name=name.replace('[',' ').replace(']',' ').replace("'",' ').replace('Lyrics',' ')
                 sentence= sentence+' '+clean_text(detail_title)
 
         else:
@@ -112,8 +125,8 @@ def create_tables(request):
                 song.save()     
 
           #  import pdb; pdb.set_trace()
-
-            for word in set(sentence.split()):
+            sorted_sentence=sorted(sentence.split())
+            for word in set(sorted_sentence):
                 indexes = get_indexes(word, sentence);
                 #indexes = [w.start() for w in re.finditer(word, sentence)]
                 for i in range(len(indexes)):
@@ -140,12 +153,15 @@ def create_tables(request):
         #import pdb; pdb.set_trace()
 
         document = get_object_or_404(Songs, id=song.id) 
+
+        #document.songofword_set.word.objects.order_by('word')
         context = {'document': document}
        # warning={'error':"There is no url enetred"}
     except MultiValueDictKeyError:
         return render(request,'song/newfile.html',{'error':"There is no url enetred"})
 
     return render(request,'song/newfile.html',context)
+
 
 
 def parse_url(song_url):

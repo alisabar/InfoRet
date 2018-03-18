@@ -13,12 +13,25 @@
 
 {% else %}
     {% if document %}
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="#">Songs Index</a>
+        </div>
+        <ul class="nav navbar-nav">
+          <li><a href="{% url 'index' %}">new song</a></li>
+          <li><a href="{% url 'view' %}">all songs</a></li>
+          <li><a href="{% url 'searchindex' %}">search</a></li>
+          <li class="active"><a href="#">song words</a></li>
+        </ul>
+      </div>
+    </nav>
     <div class="container" style="padding: 1%" >    
-        <h2><strong>Song name: </strong> {{document.song_name}}</h2>
-        <h2><strong>Author: </strong> {{document.author_name}}</h2>
-        <h2><strong>Url: </strong> {{document.song_url}}</h2>
+        <h1><strong>Song name: </strong> {{document.song_name}}</h1>
+        <h1><strong>Author: </strong> {{document.author_name}}</h1>
+        <h1><strong>Url: </strong> {{document.song_url}}</h1>
         <br>
-        <h2><strong>Song words:</strong></h2>
+        <h1><strong>Song words:</strong></h1>
         <br>
         <table class="table table-bordered">
         <tr>
@@ -26,7 +39,6 @@
         <th>Appearences</th> 
         <th>Indexes</th>
         </tr>
-    
 
         {% for songofword in document.songofword_set.all %}
         <tr>

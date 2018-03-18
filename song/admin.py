@@ -17,5 +17,5 @@ class WordsAdmin(admin.ModelAdmin):
 admin.site.register(Words, WordsAdmin)
 
 class SongsAdmin(admin.ModelAdmin):
-    fields = ['song_name', 'author_name' , 'song_url'] 
+    fields = ['song_name', 'author_name' , 'song_url', 'is_searchable'] 
 admin.site.register(Songs, SongsAdmin)

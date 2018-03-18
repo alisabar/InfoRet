@@ -1,5 +1,32 @@
-    <form name="enter_file" action="{% url 'search' %}" method="post">
+{# Load the tag library #}
+{% load bootstrap3 %}
+
+{# Load CSS and JavaScript #}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{# Display django.contrib.messages as Bootstrap alerts #}
+{% bootstrap_messages %}
+<nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="#">Songs Index</a>
+    </div>
+    <ul class="nav navbar-nav">
+      <li><a href="{% url 'index' %}">new song</a></li>
+      <li><a href="{% url 'view' %}">all songs</a></li>
+      <li class="active"><a href="#">search</a></li>
+      <li><a href="#">song words</a></li>
+    </ul>
+  </div>
+</nav>
+<div class="container">
+    <form class="form-horizontal" name="enter_file" action="{% url 'search' %}" method="post">
     {% csrf_token %}
-        search: <input type="text" name="search_text">
-        <input type="submit" value="Submit" />
+        <div class="form-group">
+            <label >search:</label>
+            <input type="text" name="search_text" class="form-control" >
+            <input type="submit" value="Submit" class='btn-primary' />
+        </div>
     </form>
+</div>
