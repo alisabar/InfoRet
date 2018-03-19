@@ -1,5 +1,26 @@
-{% if document_list %}
+{# Load the tag library #}
+{% load bootstrap3 %}
 
+{# Load CSS and JavaScript #}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{# Display django.contrib.messages as Bootstrap alerts #}
+{% bootstrap_messages %}
+{% if document_list %}
+<nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="#">Songs Index</a>
+    </div>
+    <ul class="nav navbar-nav">
+      <li><a href="{% url 'index' %}">new song</a></li>
+      <li class="active"><a href="#">all songs</a></li>
+      <li><a href="{% url 'searchindex' %}">search</a></li>
+      <li><a href="#">song words</a></li>
+    </ul>
+  </div>
+</nav>
 
 <script
   src="https://code.jquery.com/jquery-1.12.4.min.js"
@@ -22,31 +43,32 @@
             });
       });
   </script>
+<div class="container" style="padding: 1%" >
+  <form id="all_songs_form" action="{% url 'songwasdeleted' %}" method="post">
+  <input id="slected_document_ids" type="hidden" name="slected_document_ids"/>
+  {% csrf_token %}
+      <table id="all_songs_container" class="table table-bordered">
+      <tr>
+      <th>id</th>
+      <th>title</th>
+      <th>url</th> 
+      <th>delete word</th>
+      </tr>
+      {% for document in document_list %}
 
-<form id="all_songs_form" action="{% url 'wasdeleted' %}" method="post">
-<input id="slected_document_ids" type="hidden" name="slected_document_ids"/>
-{% csrf_token %}
-    <table id="all_songs_container" style="width:100%">
-    <tr>
-    <th>id</th>
-    <th>title</th>
-    <th>url</th> 
-    <th>delete</th>
-    </tr>
-    {% for document in document_list %}
+          <tr>
+          <th>{{document.id}}</th>
+          <th><a href="{% url 'detail' document.id %}">{{document.song_name}}</a></th>
+          <th>{{document.song_url}}</th>
+          <th> <input type="checkbox" id="document{{ forloop.counter }}" name="docs_list" value="{{document.id}}">
+          <label for="document{{ forloop.counter }}"></label></th>
+          </tr>
+      {% endfor %}
+      </table>
 
-        <tr>
-        <th>{{document.id}}</th>
-        <th><a href="{% url 'detail' document.id %}">{{document.song_name}}</th>
-        <th><a href="document.song_url">{{document.song_url}}</th>
-        <th> <input type="checkbox" id="document{{ forloop.counter }}" name="docs_list" value="{{document.id}}">
-        <label for="document{{ forloop.counter }}"></label></th>
-        </tr>
-    {% endfor %}
-    </table>
-
-<input type="submit" value="Delete" />
-</form>
+  <input type="submit" class='btn-primary' value="Delete" />
+  </form>
+</div>
 {% else %}
     <p>No document available.</p>
 {% endif %}

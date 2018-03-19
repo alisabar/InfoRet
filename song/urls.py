@@ -11,7 +11,7 @@ urlpatterns = [
 
     path('allsongs/', views.view, name='view'),
     
-    path('wasdeleted/', views.wasdeleted, name='wasdeleted'),
+    path('wasdeleted/', views.songwasdeleted, name='songwasdeleted'),
     # ex: /song/5/
     path('<int:song_id>/detail/', views.detail, name='detail'),
     # ex: /song/5/words/
