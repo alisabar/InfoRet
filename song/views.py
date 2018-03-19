@@ -156,27 +156,35 @@ def parse_url(song_url):
     return  context
 
 def search(request):
-    filters=Q()
+    filters=[]
     excludes=[]
     word_searching=[]
+    ands=[]
+    ors=[]
+    results=Songs.objects.all()  
     search_word=request.POST['search_text']
     if search_word is "":
         raise Http404("no words found")
     terms = sentences_split(search_word)
 
     for term in terms:
+        q=Q()
         temp=operator_and(term)
         for i in temp:
             if (i.find(" or ")==-1):
-                filters.add(Q(songofword__word__word=i),Q.AND)
+                ands.append(i)
             else:
                 temp2=operator_or(i)
                 for j in temp2:
-                    filters.add(Q(songofword__word__word=j),Q.OR)
+                   ors.append(j)
 
-    results=Songs.objects.filter(filters)
-    print(results)                     
-
+        for a in ands:
+            results=results.filter(songofword__word__word__in=a)
+            
+ #       q.add(Q(songofword__word__word__in=ors),Q.OR)        
+  #      filters.append(q)
+               
+    print(results)    
     return render(request, 'song/result.html', {'song_list': results})
 
 
