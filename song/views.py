@@ -29,6 +29,14 @@ def detail(request,song_id):
 
     return render(request, 'song/detail.html', {'document': document})
 
+def wildcard(request):
+    str=request.POST['word']
+    print(str)
+    #documents= Songs.objects.filter(songofword__word__word__regex=r'str.*')
+    documents=Words.objects.filter(word='is')
+    print(documents)
+    return render(request, 'song/regex.html', {'documents': documents})
+
 def view(request):
     document_list=Songs.objects.all()
     context = {'document_list': document_list}
@@ -50,7 +58,7 @@ def songwasdeleted(request):
     #import pdb; pdb.set_trace()
     doc_list=(request.POST['slected_document_ids']).split(",")
     for doc in doc_list:
-        detele_song(int(doc))
+        delete_song(int(doc))
     return render(request,'song/wasdeleted.html')
 
 def wordwasdeleted(request):

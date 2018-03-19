@@ -50,14 +50,15 @@
       <table id="all_songs_container" class="table table-bordered">
       <tr>
       <th>id</th>
+      <th>author</th>
       <th>title</th>
       <th>url</th> 
       <th>delete word</th>
       </tr>
       {% for document in document_list %}
-
           <tr>
           <th>{{document.id}}</th>
+          <th>{{document.author_name}}</th>
           <th><a href="{% url 'detail' document.id %}">{{document.song_name}}</a></th>
           <th>{{document.song_url}}</th>
           <th> <input type="checkbox" id="document{{ forloop.counter }}" name="docs_list" value="{{document.id}}">
