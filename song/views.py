@@ -203,7 +203,7 @@ def search(request):
 
     if(len(words)==1):
         if '*' not in words[0]:
-            results=Songs.objects.filter(is_searchable=1).filter(songofword__word__word=words[0]).order_by('songofword__times')
+            results=Songs.objects.filter(is_searchable=1).filter(songofword__word__word=words[0]).order_by('songofword__times'). desc()
         else:
             words[0]=wildcard(words[0])
             results=Songs.objects.filter(is_searchable=1).filter(songofword__word__word__contains=words[0])
