@@ -1,12 +1,40 @@
-{% if song_list %}
-    {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+{# Load the tag library #}
+{% load bootstrap3 %}
 
-    <ul>
-    {% for song in song_list %}
-    <li>{{song.song_name}}</li>
-    {% endfor %}
-    </ul>
+{# Load CSS and JavaScript #}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
 
+{# Display django.contrib.messages as Bootstrap alerts #}
+{% bootstrap_messages %}
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>
 {% else %}
-    <p>No words are found.</p>
+    {% if song_list %}
+
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="#">Songs Index</a>
+        </div>
+        <ul class="nav navbar-nav">
+          <li><a href="#">new song</a></li>
+          <li><a href="{% url 'view' %}">all songs</a></li>
+          <li><a href="{% url 'searchindex' %}">search</a></li>
+          <li><a href="#">song words</a></li>
+        </ul>
+      </div>
+    </nav>
+    <div class="container" style="padding: 1%" >
+            
+        <h3>Results:</h3>
+        <br>
+        <ul>
+        {% for song in song_list %}
+        <li><a href="{% url 'detail' song.id %}">{{song.song_name}}</a></li>
+        {% endfor %}
+        </ul>
+    </div>
+    {% else %}
+        <p>No words are found.</p>
+    {% endif %}
 {% endif %}

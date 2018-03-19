@@ -192,28 +192,66 @@ def parse_url(song_url):
     return  context
 
 def search(request):
-    filters=Q()
+    
+    filters=[]
     excludes=[]
-    word_searching=[]
+    words=[]
+    ands=[]
+    ors=[]
+    songlist=[]
+    results=[]  
+    
+    ids=[]
     search_word=request.POST['search_text']
     if search_word is "":
         raise Http404("no words found")
     terms = sentences_split(search_word)
 
-    for term in terms:
-        temp=operator_and(term)
-        for i in temp:
-            if (i.find(" or ")==-1):
-                filters.add(Q(songofword__word__word=i),Q.AND)
-            else:
-                temp2=operator_or(i)
-                for j in temp2:
-                    filters.add(Q(songofword__word__word=j),Q.OR)
+    words=terms[0].split()
 
-    results=Songs.objects.filter(filters)
-    print(results)                     
+    if(len(words)==1):
+        results=Songs.objects.filter(is_searchable=1).filter(songofword__word__word=words[0])
+    else:
+        if (words[1].find("and")!=-1):
+            results=Songs.objects.filter(is_searchable=1).filter(songofword__word__word=words[0]).filter(songofword__word__word=words[2])
+        elif (words[1].find("or")!=-1):
+            results=Songs.objects.filter(is_searchable=1).filter(Q(songofword__word__word=words[0])|Q(songofword__word__word=words[2]))
+    
+    for i in results:
+        if i.id not in ids:
+            print(i.id)
+            ids.append(i.id)
 
-    return render(request, 'song/result.html', {'song_list': results})
+    if(len(terms)>1):
+        i=1
+        while i<len(terms):
+            words=terms[i].split()
+            if "and" in words:
+                if (words[0]=="and"):
+                    results=operator_and(ids,words[1])
+                else:
+                    results=operator_and(ids,words[0])
+                for j in results:
+                    temp=[]
+                    temp.append(j.id)
+                ids=temp            
+            elif "or" in words:
+                if (words[0]=="or"):
+                    results=operator_or(ids,words[1])
+                else:
+                    results=operator_or(ids,words[0])
+            for j in results:
+                if j.id not in ids:
+                    print(j.id)
+                    ids.append(j.id)              
+            i+=1
+
+    for i in ids:
+        songlist.append(Songs.objects.get(id=i))
+   
+    
+
+    return render(request, 'song/result.html', {'song_list': songlist})
 
 
 def search_by_word(request):
@@ -258,17 +296,16 @@ def sentences_split(wrd):
         if((j==i2) and (i<0)): flag=0
     return results
 
-def operator_and(sntc):
+def operator_and(ids,word):
 
-    results=sntc.split(" and ")
+    results=Songs.objects.filter(is_searchable=1).filter(songofword__word__word=word).filter(id__in=ids)
 
     return results
 
-def operator_or(sntc):
-
-    results=sntc.split(" or ")
-
+def operator_or(ids,word):
+    
+    results=Songs.objects.filter(is_searchable=1).filter(Q(songofword__word__word=word)|Q(id__in=ids))
+    
     return results    
-
 
 
