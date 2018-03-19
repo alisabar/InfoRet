@@ -210,7 +210,11 @@ def search(request):
     words=terms[0].split()
 
     if(len(words)==1):
-        results=Songs.objects.filter(is_searchable=1).filter(songofword__word__word=words[0])
+        if '*' not in words[0]:
+            results=Songs.objects.filter(is_searchable=1).filter(songofword__word__word=words[0]).order_by('songofword__times')
+        else:
+            words[0]=wildcard(words[0])
+            results=Songs.objects.filter(is_searchable=1).filter(songofword__word__word__contains=words[0])
     else:
         if (words[1].find("and")!=-1):
             results=Songs.objects.filter(is_searchable=1).filter(songofword__word__word=words[0]).filter(songofword__word__word=words[2])
@@ -231,8 +235,8 @@ def search(request):
                     results=operator_and(ids,words[1])
                 else:
                     results=operator_and(ids,words[0])
+                temp=[]
                 for j in results:
-                    temp=[]
                     temp.append(j.id)
                 ids=temp            
             elif "or" in words:
@@ -297,15 +301,23 @@ def sentences_split(wrd):
     return results
 
 def operator_and(ids,word):
-
-    results=Songs.objects.filter(is_searchable=1).filter(songofword__word__word=word).filter(id__in=ids)
-
+    if '*' not in word:
+        results=Songs.objects.filter(is_searchable=1).filter(songofword__word__word=word).filter(id__in=ids)
+    else:
+        word=wildcard(word)
+        results=Songs.objects.filter(is_searchable=1).filter(songofword__word__word__contains=word).filter(id__in=ids).distinct()
     return results
 
 def operator_or(ids,word):
-    
-    results=Songs.objects.filter(is_searchable=1).filter(Q(songofword__word__word=word)|Q(id__in=ids))
-    
+    if '*' not in word:
+        results=Songs.objects.filter(is_searchable=1).filter(Q(songofword__word__word=word)|Q(id__in=ids))
+    else:
+        word=wildcard(word)
+        results=Songs.objects.filter(is_searchable=1).filter(Q(songofword__word__word__contains=word)|Q(id__in=ids))
+        print(Words.objects.filter(word__contains=word))
     return results    
 
-
+def wildcard(word):
+    print(word)
+    result=word.split('*')[0]
+    return result
