@@ -203,15 +203,15 @@ def search(request):
 
     if(len(words)==1):
         if '*' not in words[0]:
-            results=Songs.objects.filter(is_searchable=1).filter(songofword__word__word=words[0]).order_by('songofword__times'). desc()
+            results=Songs.objects.filter(is_searchable=1).filter(songofword__word__word=words[0]).order_by('-songofword__times')
         else:
             words[0]=wildcard(words[0])
-            results=Songs.objects.filter(is_searchable=1).filter(songofword__word__word__contains=words[0])
+            results=Songs.objects.filter(is_searchable=1).filter(songofword__word__word__contains=words[0]).order_by('-songofword__times')
     else:
         if (words[1].find("and")!=-1):
-            results=Songs.objects.filter(is_searchable=1).filter(songofword__word__word=words[0]).filter(songofword__word__word=words[2])
+            results=Songs.objects.filter(is_searchable=1).filter(songofword__word__word=words[0]).filter(songofword__word__word=words[2]).order_by('-songofword__times')
         elif (words[1].find("or")!=-1):
-            results=Songs.objects.filter(is_searchable=1).filter(Q(songofword__word__word=words[0])|Q(songofword__word__word=words[2]))
+            results=Songs.objects.filter(is_searchable=1).filter(Q(songofword__word__word=words[0])|Q(songofword__word__word=words[2])).order_by('-songofword__times')
     
     for i in results:
         if i.id not in ids:
@@ -294,18 +294,18 @@ def sentences_split(wrd):
 
 def operator_and(ids,word):
     if '*' not in word:
-        results=Songs.objects.filter(is_searchable=1).filter(songofword__word__word=word).filter(id__in=ids)
+        results=Songs.objects.filter(is_searchable=1).filter(songofword__word__word=word).filter(id__in=ids).order_by('-songofword__times')
     else:
         word=wildcard(word)
-        results=Songs.objects.filter(is_searchable=1).filter(songofword__word__word__contains=word).filter(id__in=ids).distinct()
+        results=Songs.objects.filter(is_searchable=1).filter(songofword__word__word__contains=word).filter(id__in=ids).distinct().order_by('-songofword__times')
     return results
 
 def operator_or(ids,word):
     if '*' not in word:
-        results=Songs.objects.filter(is_searchable=1).filter(Q(songofword__word__word=word)|Q(id__in=ids))
+        results=Songs.objects.filter(is_searchable=1).filter(Q(songofword__word__word=word)|Q(id__in=ids)).order_by('-songofword__times')
     else:
         word=wildcard(word)
-        results=Songs.objects.filter(is_searchable=1).filter(Q(songofword__word__word__contains=word)|Q(id__in=ids))
+        results=Songs.objects.filter(is_searchable=1).filter(Q(songofword__word__word__contains=word)|Q(id__in=ids)).order_by('-songofword__times')
         print(Words.objects.filter(word__contains=word))
     return results    
 
