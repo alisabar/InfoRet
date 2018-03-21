@@ -277,64 +277,16 @@ def search(request):
 
     return render(request, 'song/result.html', {'song_list': songlist})
 
-
-def find_distance(word1,word2, min_dist):
+               
+def make_word_bold(song_text, words):
     
-    word_1 = get_object_or_404(Words, word=word1)
-    word_1_indexes=word_1.songs.indexes
-    word_2 = get_object_or_404(Words, word=word2)
-    word_2_indexes=word_2.songs.indexes
-    dist=min_dist
-    mindist=100
- 
-    distenses=[]
-    for i in word_1_indexes:
-        for j in word_2_indexes:
-            if abs(i-j)>dist:
-                continue
-            else
-                dist=abs(i-j)
-                y={'i'=i, 'j'=j, 'distanse'=dist}
-                distenses.apend(y)
-                                
-                
-    return distenses
-
-def extract_distance(distenses):
-
-      dict_of_distanses=distenses 
-      
-
-
-def bold(song, word){
-    song_obj=song
-    song_text=song_obj.song_content
-    song_new_text=f(song_text)
-    
-}                
-def f(song_text):
-    str=
-
-
-
-def search_by_word(request):
-    try:
-        song_list = Songs.objects.order_by('song_name')
-        context = {
-         'song_list': song_list,
-        }
-    except Songs.DoesNotExist:
-        raise Http404("Song does not exist")
-    return render(request, 'song/search.html', {'song': context})
-
-
-def words(request):
-    try:
-        songwords = Songs.objects.get(pk=song_id)
-    except Songs.DoesNotExist:
-        raise Http404("Song does not exist")
-
-    return render(request, 'song/words.html', {'song': songwords})
+    str_song=song_text.split()
+    for j in words:
+        for i in str_song:
+            if str_song[i]==word:
+                m=str_song[i]
+                str_song[i]='<b>'+m+'</b>'
+    return str_song
 
 def sentences_split(wrd):
     begin_sentences=wrd.split("(")
