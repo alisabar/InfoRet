@@ -11,6 +11,7 @@ from django.utils.datastructures import MultiValueDictKeyError
 from django.db.models import Q
 
 # Create your views here.
+important_words=[]
 
 def index(request):
 
@@ -192,7 +193,8 @@ def search(request):
     ors=[]
     songlist=[]
     results=[]  
-    
+    search_words=[]
+
     ids=[]
     search_word=request.POST['search_text']
     if search_word is "":
@@ -200,19 +202,26 @@ def search(request):
     terms = sentences_split(search_word)
 
     words=terms[0].split()
-
+    
     if(len(words)==1):
+        
         if '*' not in words[0]:
+            search_words.append(words[0])
             results=Songs.objects.filter(is_searchable=1).filter(songofword__word__word=words[0]).order_by('-songofword__times')
         else:
             words[0]=wildcard(words[0])
             results=Songs.objects.filter(is_searchable=1).filter(songofword__word__word__contains=words[0]).order_by('-songofword__times')
     else:
+        search_words.append(words[0])
+        search_words.append(words[2])
         if (words[1].find("and")!=-1):
             results=Songs.objects.filter(is_searchable=1).filter(songofword__word__word=words[0]).filter(songofword__word__word=words[2]).order_by('-songofword__times')
         elif (words[1].find("or")!=-1):
             results=Songs.objects.filter(is_searchable=1).filter(Q(songofword__word__word=words[0])|Q(songofword__word__word=words[2])).order_by('-songofword__times')
-    
+        elif (words[1].find("near")!=-1):
+            results= near(words[0],words[3],int(words[2]))
+
+
     for i in results:
         if i.id not in ids:
             print(i.id)
@@ -298,6 +307,7 @@ def operator_and(ids,word):
     else:
         word=wildcard(word)
         results=Songs.objects.filter(is_searchable=1).filter(songofword__word__word__contains=word).filter(id__in=ids).distinct().order_by('-songofword__times')
+    search_words.append(word)
     return results
 
 def operator_or(ids,word):
@@ -307,9 +317,29 @@ def operator_or(ids,word):
         word=wildcard(word)
         results=Songs.objects.filter(is_searchable=1).filter(Q(songofword__word__word__contains=word)|Q(id__in=ids)).order_by('-songofword__times')
         print(Words.objects.filter(word__contains=word))
+    search_words.append(word)
     return results    
 
 def wildcard(word):
     print(word)
     result=word.split('*')[0]
     return result
+
+def near(word1,word2,dis):
+  
+  results1=Songs.objects.filter(is_searchable=1).filter(songofword__word__word=word1).filter(songofword__word__word=word2)
+  ids=[]
+  for i in results1:
+        indexes1=Songofword.objects.filter(song=i).filter(word__word=word1)
+        indexes1=indexes1[0].indexes.split()
+        indexes2=Songofword.objects.filter(song=i).filter(word__word=word2)
+        indexes2=indexes2[0].indexes.split()
+        for i1 in indexes1:
+            for i2 in indexes2:
+                dis1=int(i1)
+                dis2=int(i2)
+                if(dis>=abs(dis1-dis2)):
+                    ids.append(i.id)
+
+  results=Songs.objects.filter(id__in=ids) 
+  return results                 
