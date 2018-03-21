@@ -296,6 +296,7 @@ def search(request):
     return render(request, 'song/result.html', {'song_list': songlist})
 
 
+
 #def find_distance(word1,word2, min_dist):
     
 #    word_1 = get_object_or_404(Words, word=word1)
@@ -353,6 +354,17 @@ def words(request):
         raise Http404("Song does not exist")
 
     return render(request, 'song/words.html', {'song': songwords})
+               
+def make_word_bold(song_text, words):
+    
+    str_song=song_text.split()
+    for j in words:
+        for i in str_song:
+            if str_song[i]==word:
+                m=str_song[i]
+                str_song[i]='<b>'+m+'</b>'
+    return str_song
+
 
 def sentences_split(wrd):
     begin_sentences=wrd.split("(")
