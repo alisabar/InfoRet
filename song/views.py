@@ -219,34 +219,38 @@ def search(request):
     songlist=[]
     results=[]  
     search_words=[]
-    stop_words=[ 'a', 'the', 'they', 'is', 'are']
+    stop_words=['the', 'they', 'is', 'are']
     ids=[]
     search_word=request.POST['search_text']
-
+    for i in stop_words:
+        search_word=search_word.replace(i,'')
     if search_word is "":
         raise Http404("no words found")
-    for i in stop_words:
-        search_word=search_word.replace(i, ' ')
+    print(search_word)
     terms = sentences_split(search_word)
 
     words=terms[0].split()
     
     if(len(words)==1):
-        
         if '*' not in words[0]:
             search_words.append(words[0])
             results=Songs.objects.filter(is_searchable=1).filter(songofword__word__word=words[0]).order_by('-songofword__times')
         else:
             words[0]=wildcard(words[0])
+            search_words.append(words[0])
             results=Songs.objects.filter(is_searchable=1).filter(songofword__word__word__contains=words[0]).order_by('-songofword__times')
     else:
-        search_words.append(words[0])
-        search_words.append(words[2])
         if (words[1].find("and")!=-1):
+            search_words.append(words[0])
+            search_words.append(words[2])
             results=Songs.objects.filter(is_searchable=1).filter(songofword__word__word=words[0]).filter(songofword__word__word=words[2]).order_by('-songofword__times')
         elif (words[1].find("or")!=-1):
+            search_words.append(words[0])
+            search_words.append(words[2])
             results=Songs.objects.filter(is_searchable=1).filter(Q(songofword__word__word=words[0])|Q(songofword__word__word=words[2])).order_by('-songofword__times')
         elif (words[1].find("near")!=-1):
+            search_words.append(words[0])
+            search_words.append(words[3])
             results= near(words[0],words[3],int(words[2]))
 
 
@@ -261,8 +265,10 @@ def search(request):
             words=terms[i].split()
             if "and" in words:
                 if (words[0]=="and"):
+                    search_words.append(words[1])
                     results=operator_and(ids,words[1])
                 else:
+                    search_words.append(words[0])
                     results=operator_and(ids,words[0])
                 temp=[]
                 for j in results:
@@ -270,8 +276,10 @@ def search(request):
                 ids=temp            
             elif "or" in words:
                 if (words[0]=="or"):
+                    search_words.append(words[1])
                     results=operator_or(ids,words[1])
                 else:
+                    search_words.append(words[0])
                     results=operator_or(ids,words[0])
             for j in results:
                 if j.id not in ids:
@@ -282,47 +290,48 @@ def search(request):
     for i in ids:
         songlist.append(Songs.objects.get(id=i))
    
+    important_words=search_words
     
 
     return render(request, 'song/result.html', {'song_list': songlist})
 
 
-def find_distance(word1,word2, min_dist):
+#def find_distance(word1,word2, min_dist):
     
-    word_1 = get_object_or_404(Words, word=word1)
-    word_1_indexes=word_1.songs.indexes
-    word_2 = get_object_or_404(Words, word=word2)
-    word_2_indexes=word_2.songs.indexes
-    dist=min_dist
-    mindist=100
+#    word_1 = get_object_or_404(Words, word=word1)
+#    word_1_indexes=word_1.songs.indexes
+#    word_2 = get_object_or_404(Words, word=word2)
+#    word_2_indexes=word_2.songs.indexes
+#    dist=min_dist
+#    mindist=100
  
-    distenses=[]
-    for i in word_1_indexes:
-        for j in word_2_indexes:
-            if abs(i-j)>dist:
-                continue
-            else
-                dist=abs(i-j)
-                y={'i'=i, 'j'=j, 'distanse'=dist}
-                distenses.apend(y)
+ #   distenses=[]
+  #  for i in word_1_indexes:
+   #     for j in word_2_indexes:
+    #        if abs(i-j)>dist:
+     #           continue
+      #      else
+       #         dist=abs(i-j)
+        #        y={'i'=i, 'j'=j, 'distanse'=dist}
+         #       distenses.apend(y)
                                 
                 
-    return distenses
+  #  return distenses
 
-def extract_distance(distenses):
+#def extract_distance(distenses):
 
-      dict_of_distanses=distenses 
+ #     dict_of_distanses=distenses 
       
 
 
-def bold(song, word){
-    song_obj=song
-    song_text=song_obj.song_content
-    song_new_text=f(song_text)
+#def bold(song, word){
+ #   song_obj=song
+  #  song_text=song_obj.song_content
+   # song_new_text=f(song_text)
     
-}                
-def f(song_text):
-    str=
+#}                
+#def f(song_text):
+ #   str=
 
 
 
@@ -374,7 +383,6 @@ def operator_and(ids,word):
     else:
         word=wildcard(word)
         results=Songs.objects.filter(is_searchable=1).filter(songofword__word__word__contains=word).filter(id__in=ids).distinct().order_by('-songofword__times')
-    search_words.append(word)
     return results
 
 def operator_or(ids,word):
@@ -384,7 +392,6 @@ def operator_or(ids,word):
         word=wildcard(word)
         results=Songs.objects.filter(is_searchable=1).filter(Q(songofword__word__word__contains=word)|Q(id__in=ids)).order_by('-songofword__times')
         print(Words.objects.filter(word__contains=word))
-    search_words.append(word)
     return results    
 
 def wildcard(word):
@@ -409,4 +416,5 @@ def near(word1,word2,dis):
                     ids.append(i.id)
 
   results=Songs.objects.filter(id__in=ids) 
+  print(results)
   return results                 
