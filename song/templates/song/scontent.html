@@ -1,4 +1,3 @@
-{# Load the tag library #}
 {% load bootstrap3 %}
 
 {# Load CSS and JavaScript #}
@@ -9,8 +8,8 @@
 {% bootstrap_messages %}
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>
 {% else %}
-    {% if song_list %}
-
+    {% if song%}
+ 
     <nav class="navbar navbar-default">
       <div class="container-fluid">
         <div class="navbar-header">
@@ -18,23 +17,16 @@
         </div>
         <ul class="nav navbar-nav">
           <li><a href="{% url 'searchindex' %}">search</a></li>
-          <li class="active"><a href="#">result</a></li>
+          <li class="active"><a href="#">song</a></li>
         </ul>
       </div>
     </nav>
-
     <div class="container" style="padding: 1%" >
             
-        <h3>Results:</h3>
-        <br>
-        <ul>
-        {% for song in song_list %}
-        <li><a href="{% url 'scontent' song.id %}">{{song.song_name}}</a>
-            <p>
-             {{song.song_content|safe|truncatechars:70}}
-            </p>
-        </li>
-        {% endfor %}
+        <h3>{{song.author_name}}-{{song.song_name}}</h3>
+        <p>
+          {{song.song_content|safe}}
+        </p>
     </div>
     {% else %}
         <p>No words are found.</p>

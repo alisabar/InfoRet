@@ -9,6 +9,8 @@ urlpatterns = [
 
     path('newfile/', views.create_tables, name='newfile'),
 
+    path('<int:song_id>/scontent/', views.scontent, name='scontent'),
+
     path('allsongs/', views.view, name='view'),
 
     path('wasdeleted/', views.songwasdeleted, name='songwasdeleted'),
