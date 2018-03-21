@@ -30,6 +30,14 @@ def detail(request,song_id):
 
     return render(request, 'song/detail.html', {'document': document})
 
+def wildcard(request):
+    str=request.POST['word']
+    print(str)
+    #documents= Songs.objects.filter(songofword__word__word__regex=r'str.*')
+    documents=Words.objects.filter(word='is')
+    print(documents)
+    return render(request, 'song/regex.html', {'documents': documents})
+
 def view(request):
     document_list=Songs.objects.all()
     context = {'document_list': document_list}
@@ -72,10 +80,18 @@ def song_exists(song_name):
 def get_song(song_name):
     return Songs.objects.filter(song_name=song_name)[:1].get()
 
+def scontent(request,song_id):
+    try:
+        song = Songs.objects.get(pk=song_id)
+    except Songs.DoesNotExist:
+        raise Http404("Document does not exist")
+
+    return render(request, 'song/scontent.html', {'song': song})
+
 def clean_text(text):
 
     body=str(text)
-    body= body.replace('<div class="dn" id="content_h">',' ').replace('<br/>',' ').replace('</div>',' ')
+    body= body.replace('a href',' ').replace('<div class="dn" id="content_h">',' ').replace('<br/>',' ').replace('</div>',' ')
     body=body.lower()
 
     return body.replace('.',' ').replace('!',' ').replace(',',' ').replace('?',' ').replace('(',' ').replace(')',' ').replace('-',' ').replace('*',' ').replace('–',' ').replace('[',' ').replace(']',' ').replace('\"',' ').replace('\'ll',' will ').replace('\'s',' ').replace('\'d',' would ').replace("'cause","because")      
@@ -91,13 +107,14 @@ def create_tables(request):
         url=request.POST['link']
         detail=parse_url(url)
        
-        stop_words=['a href',]
+       
         detail_title=detail['title']
         detail_body=detail['body']
         author=''
         name=''
         sentence=''
         mid=''
+        content_song_lyrics=detail['song_content']
         if not (detail_title is None): 
                 author = detail_title.split("–")[0]
                 name=detail_title.split("–")[1:]
@@ -122,8 +139,11 @@ def create_tables(request):
             if(song_exists(song_name=name)):
                 song=get_song(song_name=name)
             else:
-                song=Songs(song_name=name, author_name=author, song_url=url)
-                song.save()     
+                if not(content_song_lyrics is None):
+                    song=Songs(song_content=content_song_lyrics, song_name=name, author_name=author, song_url=url)
+                    song.save()  
+                else:
+                    p="no context"   
 
           #  import pdb; pdb.set_trace()
             sorted_sentence=sorted(sentence.split())
@@ -174,11 +194,16 @@ def parse_url(song_url):
     author_song_name=soup.find(class_='lyric-song-head').get_text()
     body=soup.find(class_='dn')
 
+    song_content=str(body)
+    song_content= song_content.replace('<div class="dn" id="content_h">',' ').replace('</div>',' ').replace('<br/>',' <br>')
+
+        
     #title = tree.xpath('//h1[@class="firstHeading"]/text()')
    # body= tree.xpath('//div[@class="mw-parser-output"]/p[14]/text()')
     context = {
         'title': author_song_name,
         'body': body,
+        'song_content':song_content,
     }
     logger= logging.getLogger(__name__)
     logger.error(context)
@@ -194,11 +219,14 @@ def search(request):
     songlist=[]
     results=[]  
     search_words=[]
-
+    stop_words=[ 'a', 'the', 'they', 'is', 'are']
     ids=[]
     search_word=request.POST['search_text']
+
     if search_word is "":
         raise Http404("no words found")
+    for i in stop_words:
+        search_word=search_word.replace(i, ' ')
     terms = sentences_split(search_word)
 
     words=terms[0].split()
@@ -257,6 +285,45 @@ def search(request):
     
 
     return render(request, 'song/result.html', {'song_list': songlist})
+
+
+def find_distance(word1,word2, min_dist):
+    
+    word_1 = get_object_or_404(Words, word=word1)
+    word_1_indexes=word_1.songs.indexes
+    word_2 = get_object_or_404(Words, word=word2)
+    word_2_indexes=word_2.songs.indexes
+    dist=min_dist
+    mindist=100
+ 
+    distenses=[]
+    for i in word_1_indexes:
+        for j in word_2_indexes:
+            if abs(i-j)>dist:
+                continue
+            else
+                dist=abs(i-j)
+                y={'i'=i, 'j'=j, 'distanse'=dist}
+                distenses.apend(y)
+                                
+                
+    return distenses
+
+def extract_distance(distenses):
+
+      dict_of_distanses=distenses 
+      
+
+
+def bold(song, word){
+    song_obj=song
+    song_text=song_obj.song_content
+    song_new_text=f(song_text)
+    
+}                
+def f(song_text):
+    str=
+
 
 
 def search_by_word(request):
