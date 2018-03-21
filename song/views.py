@@ -98,6 +98,7 @@ def clean_text(text):
 
 def get_indexes(word,sentence):
     pattern="\\b"+word+"\\b"
+    indexes=0
     indexes = [w.start() for w in re.finditer(pattern, sentence)]
     return indexes
 
@@ -146,9 +147,8 @@ def create_tables(request):
                     p="no context"   
 
           #  import pdb; pdb.set_trace()
-            sorted_sentence=sorted(sentence.split())
-            for word in set(sorted_sentence):
-                indexes = get_indexes(word, sentence);
+            for word in set(content_song_lyrics.split()):
+                indexes = get_indexes(word, content_song_lyrics);
                 #indexes = [w.start() for w in re.finditer(word, sentence)]
                 for i in range(len(indexes)):
                     numbers=numbers+" "+str(indexes[i])
@@ -165,7 +165,7 @@ def create_tables(request):
                 #add relation word<-> dong , if not exits
                 if(dbWord.songs.filter(song_name=name).count()==0):
                     create_posting_file( dbWord ,song, indexes, numbers)
-                
+                indexes=0
                 #reset state
                 numbers=''
         else:        
@@ -196,7 +196,7 @@ def parse_url(song_url):
 
     song_content=str(body)
     song_content= song_content.replace('<div class="dn" id="content_h">',' ').replace('</div>',' ').replace('<br/>',' <br>')
-
+    song_content=clean_text(song_content)
         
     #title = tree.xpath('//h1[@class="firstHeading"]/text()')
    # body= tree.xpath('//div[@class="mw-parser-output"]/p[14]/text()')
