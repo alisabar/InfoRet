@@ -11,6 +11,7 @@ from django.utils.datastructures import MultiValueDictKeyError
 from django.db.models import Q
 
 # Create your views here.
+important_words=[]
 
 def index(request):
 
@@ -114,11 +115,13 @@ def create_dict_index(indexes):
 
 def get_indexes(word,sentence):
     pattern="\\b"+word+"\\b"
+
     indexes=[]
     for word in sentence:
 
 
         indexes = [w.start() for w in re.finditer(pattern, sentence)]
+
     return indexes
 
 def create_tables(request):
@@ -172,6 +175,7 @@ def create_tables(request):
 
                 #indexes = get_indexes(word, content_song_lyrics);
 
+
                 #indexes = [w.start() for w in re.finditer(word, sentence)]
                # for i in range(len(indexes)):
                   #  numbers=numbers+" "+str(indexes[i])
@@ -187,9 +191,11 @@ def create_tables(request):
                 
                 #add relation word<-> dong , if not exits
                 if(dbWord.songs.filter(song_name=name).count()==0):
+
                     create_posting_file( dbWord ,song, len(how_many_times_a_word_repeats[word]), how_many_times_a_word_repeats[word])
                     indexes=0
                 
+
                 #reset state
                 numbers=''
         else:        
@@ -242,30 +248,42 @@ def search(request):
     ors=[]
     songlist=[]
     results=[]  
-    stop_words=[ 'a', 'the', 'they', 'is', 'are']
+    search_words=[]
+    stop_words=['the', 'they', 'is', 'are']
     ids=[]
     search_word=request.POST['search_text']
-
+    for i in stop_words:
+        search_word=search_word.replace(i,'')
     if search_word is "":
         raise Http404("no words found")
-    for i in stop_words:
-        search_word=search_word.replace(i, ' ')
+    print(search_word)
     terms = sentences_split(search_word)
 
     words=terms[0].split()
-
+    
     if(len(words)==1):
         if '*' not in words[0]:
+            search_words.append(words[0])
             results=Songs.objects.filter(is_searchable=1).filter(songofword__word__word=words[0]).order_by('-songofword__times')
         else:
             words[0]=wildcard(words[0])
+            search_words.append(words[0])
             results=Songs.objects.filter(is_searchable=1).filter(songofword__word__word__contains=words[0]).order_by('-songofword__times')
     else:
         if (words[1].find("and")!=-1):
+            search_words.append(words[0])
+            search_words.append(words[2])
             results=Songs.objects.filter(is_searchable=1).filter(songofword__word__word=words[0]).filter(songofword__word__word=words[2]).order_by('-songofword__times')
         elif (words[1].find("or")!=-1):
+            search_words.append(words[0])
+            search_words.append(words[2])
             results=Songs.objects.filter(is_searchable=1).filter(Q(songofword__word__word=words[0])|Q(songofword__word__word=words[2])).order_by('-songofword__times')
-    
+        elif (words[1].find("near")!=-1):
+            search_words.append(words[0])
+            search_words.append(words[3])
+            results= near(words[0],words[3],int(words[2]))
+
+
     for i in results:
         if i.id not in ids:
             print(i.id)
@@ -277,8 +295,10 @@ def search(request):
             words=terms[i].split()
             if "and" in words:
                 if (words[0]=="and"):
+                    search_words.append(words[1])
                     results=operator_and(ids,words[1])
                 else:
+                    search_words.append(words[0])
                     results=operator_and(ids,words[0])
                 temp=[]
                 for j in results:
@@ -286,8 +306,10 @@ def search(request):
                 ids=temp            
             elif "or" in words:
                 if (words[0]=="or"):
+                    search_words.append(words[1])
                     results=operator_or(ids,words[1])
                 else:
+                    search_words.append(words[0])
                     results=operator_or(ids,words[0])
             for j in results:
                 if j.id not in ids:
@@ -298,10 +320,70 @@ def search(request):
     for i in ids:
         songlist.append(Songs.objects.get(id=i))
    
+    important_words=search_words
     
 
     return render(request, 'song/result.html', {'song_list': songlist})
 
+
+
+#def find_distance(word1,word2, min_dist):
+    
+#    word_1 = get_object_or_404(Words, word=word1)
+#    word_1_indexes=word_1.songs.indexes
+#    word_2 = get_object_or_404(Words, word=word2)
+#    word_2_indexes=word_2.songs.indexes
+#    dist=min_dist
+#    mindist=100
+ 
+ #   distenses=[]
+  #  for i in word_1_indexes:
+   #     for j in word_2_indexes:
+    #        if abs(i-j)>dist:
+     #           continue
+      #      else
+       #         dist=abs(i-j)
+        #        y={'i'=i, 'j'=j, 'distanse'=dist}
+         #       distenses.apend(y)
+                                
+                
+  #  return distenses
+
+#def extract_distance(distenses):
+
+ #     dict_of_distanses=distenses 
+      
+
+
+#def bold(song, word){
+ #   song_obj=song
+  #  song_text=song_obj.song_content
+   # song_new_text=f(song_text)
+    
+#}                
+#def f(song_text):
+ #   str=
+
+
+
+def search_by_word(request):
+    try:
+        song_list = Songs.objects.order_by('song_name')
+        context = {
+         'song_list': song_list,
+        }
+    except Songs.DoesNotExist:
+        raise Http404("Song does not exist")
+    return render(request, 'song/search.html', {'song': context})
+
+
+def words(request):
+    try:
+        songwords = Songs.objects.get(pk=song_id)
+    except Songs.DoesNotExist:
+        raise Http404("Song does not exist")
+
+    return render(request, 'song/words.html', {'song': songwords})
                
 def make_word_bold(song_text, words):
 
@@ -312,6 +394,7 @@ def make_word_bold(song_text, words):
                 m=str_song[i]
                 str_song[i]='<b>'+m+'</b>'
     return str_song
+
 
 def sentences_split(wrd):
     begin_sentences=wrd.split("(")
@@ -357,3 +440,23 @@ def wildcard(word):
     print(word)
     result=word.split('*')[0]
     return result
+
+def near(word1,word2,dis):
+  
+  results1=Songs.objects.filter(is_searchable=1).filter(songofword__word__word=word1).filter(songofword__word__word=word2)
+  ids=[]
+  for i in results1:
+        indexes1=Songofword.objects.filter(song=i).filter(word__word=word1)
+        indexes1=indexes1[0].indexes.split()
+        indexes2=Songofword.objects.filter(song=i).filter(word__word=word2)
+        indexes2=indexes2[0].indexes.split()
+        for i1 in indexes1:
+            for i2 in indexes2:
+                dis1=int(i1)
+                dis2=int(i2)
+                if(dis>=abs(dis1-dis2)):
+                    ids.append(i.id)
+
+  results=Songs.objects.filter(id__in=ids) 
+  print(results)
+  return results                 
