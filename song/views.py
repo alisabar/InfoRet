@@ -80,13 +80,16 @@ def song_exists(song_name):
 def get_song(song_name):
     return Songs.objects.filter(song_name=song_name)[:1].get()
 
-def scontent(request,song_id):
+def scontent(request,song_id,search_words):
     try:
         song = Songs.objects.get(pk=song_id)
     except Songs.DoesNotExist:
         raise Http404("Document does not exist")
-
-    return render(request, 'song/scontent.html', {'song': song})
+    context={
+        'song': song,
+        'words':search_words,
+    }
+    return render(request, 'song/scontent.html', context)
 
 def clean_text(text):
 
@@ -319,11 +322,19 @@ def search(request):
 
     for i in ids:
         songlist.append(Songs.objects.get(id=i))
-   
-    important_words=search_words
-    
 
-    return render(request, 'song/result.html', {'song_list': songlist})
+    important_words=search_words
+
+
+    str1 = ','.join(str(e) for e in words)
+    context={
+        'song_list': songlist,
+        'search_words': str1,
+    }
+
+
+
+    return render(request, 'song/result.html', context)
 
 
 

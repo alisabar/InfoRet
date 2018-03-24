@@ -10,32 +10,51 @@
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>
 {% else %}
     {% if song_list %}
+        {% if search_words %}
+            <script
+              src="https://code.jquery.com/jquery-1.12.4.min.js"
+              integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="
+              crossorigin="anonymous"></script>
 
-    <nav class="navbar navbar-default">
-      <div class="container-fluid">
-        <div class="navbar-header">
-          <a class="navbar-brand" href="#">Songs Index</a>
-        </div>
-        <ul class="nav navbar-nav">
-          <li><a href="{% url 'searchindex' %}">search</a></li>
-          <li class="active"><a href="#">result</a></li>
-        </ul>
-      </div>
-    </nav>
 
-    <div class="container" style="padding: 1%" >
-            
-        <h3>Results:</h3>
-        <br>
-        <ul>
-        {% for song in song_list %}
-        <li><a href="{% url 'scontent' song.id %}">{{song.song_name}}</a>
-            <p>
-             {{song.song_content|safe|truncatechars:70}}
-            </p>
-        </li>
-        {% endfor %}
-    </div>
+            <script type="text/javascript">
+             $("document").ready(function(){
+             
+                   var words="{{search_words}}";
+                   words=words.split();
+                   var song= $("#song").html();
+                   for (i = 0; i < words.length; i++) { 
+                        song=song.replace( words[i], "<b>"+words[i]+"</b>");
+                    }   
+                   $("#song").html(song);
+             });
+             </script>
+                <nav class="navbar navbar-default">
+                  <div class="container-fluid">
+                    <div class="navbar-header">
+                      <a class="navbar-brand" href="#">Songs Index</a>
+                    </div>
+                    <ul class="nav navbar-nav">
+                      <li><a href="{% url 'searchindex' %}">search</a></li>
+                      <li class="active"><a href="#">result</a></li>
+                    </ul>
+                  </div>
+                </nav>
+
+                <div class="container" style="padding: 1%" >
+                        
+                    <h3>Results:</h3>
+                    <br>
+                    <ul>
+                    {% for song in song_list %}
+                    <li><a href="{% url 'scontent' song.id search_words %}">{{song.song_name}}</a>
+                        <p id="song">
+                         {{song.song_content|safe|truncatechars:500}}
+                        </p>
+                    </li>
+                    {% endfor %}
+                </div>
+        {% endif %}
     {% else %}
         <p>No words are found.</p>
     {% endif %}
