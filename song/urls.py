@@ -9,7 +9,7 @@ urlpatterns = [
 
     path('newfile/', views.create_tables, name='newfile'),
 
-    path('<int:song_id>/<slug:search_words>/scontent/', views.scontent, name='scontent'),
+    path('<int:song_id>/<str:search_words>/scontent/', views.scontent, name='scontent'),
 
     path('allsongs/', views.view, name='view'),
 
