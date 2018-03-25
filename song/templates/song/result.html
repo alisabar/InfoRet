@@ -1,4 +1,7 @@
-{# Load the tag library #}
+<script
+          src="https://code.jquery.com/jquery-1.12.4.min.js"
+          integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="
+          crossorigin="anonymous"></script>
 {% load bootstrap3 %}
 
 {# Load CSS and JavaScript #}
@@ -11,23 +14,23 @@
 {% else %}
     {% if song_list %}
         {% if search_words %}
-            <script
-              src="https://code.jquery.com/jquery-1.12.4.min.js"
-              integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="
-              crossorigin="anonymous"></script>
-
-
-            <script type="text/javascript">
+         <script type="text/javascript">
              $("document").ready(function(){
-             
+                   var song;
                    var words="{{search_words}}";
+                   var songs="{{song_list}}";
                    words=words.split();
-                   var song= $("#song").html();
-                   for (i = 0; i < words.length; i++) { 
-                        song=song.replace( words[i], "<b>"+words[i]+"</b>");
-                    }   
-                   $("#song").html(song);
-             });
+                   for(k=0; k<songs.length; k++){
+                       song= $("ul li:eq("+k+"),(p)").html();
+                       for (i = 0; i < words.length; i++) { 
+                            for(j = 0; j < song.length; j++) { 
+                                song=song.replace( words[i], "<b>"+words[i]+"</b>");
+                            }
+                        }   
+                       $("#song").html(song);
+                   }
+             });    
+
              </script>
                 <nav class="navbar navbar-default">
                   <div class="container-fluid">
@@ -48,14 +51,14 @@
                     <ul>
                     {% for song in song_list %}
                     <li><a href="{% url 'scontent' song.id search_words %}">{{song.song_name}}</a>
-                        <p id="song">
-                         {{song.song_content|safe|truncatechars:500}}
+                        <p>
+                            {{song.song_content|safe|truncatechars:300}}
                         </p>
                     </li>
                     {% endfor %}
                 </div>
         {% endif %}
     {% else %}
-        <p>No words are found.</p>
+        <span>No words are found.</span>
     {% endif %}
 {% endif %}
