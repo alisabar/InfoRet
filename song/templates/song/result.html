@@ -14,24 +14,29 @@
 {% else %}
     {% if song_list %}
         {% if search_words %}
-         <script type="text/javascript">
-             $("document").ready(function(){
+           
+            <script type="text/javascript">
+                $("document").ready(function(){
                    var song;
+                   var re;
                    var words="{{search_words}}";
-                   var songs="{{song_list}}";
+                   var songs_len="{{song_list|length}}";
                    words=words.split();
-                   for(k=0; k<songs.length; k++){
-                       song= $("ul li:eq("+k+"),(p)").html();
+                   words=words[0].split(',');
+                   for(k=0; k<songs_len; k++){
+                       song= $(".container ul li:eq("+k+")").html();
+                       console.log(song);
                        for (i = 0; i < words.length; i++) { 
-                            for(j = 0; j < song.length; j++) { 
-                                song=song.replace( words[i], "<b>"+words[i]+"</b>");
-                            }
+                            re= new RegExp(words[i],"gi");
+                            song=song.replace( re, "<b>"+words[i]+"</b>");
+                            
                         }   
-                       $("#song").html(song);
+                        $(".container ul li:eq("+k+")").html(song);  
                    }
-             });    
+                });    
 
-             </script>
+            </script>
+        
                 <nav class="navbar navbar-default">
                   <div class="container-fluid">
                     <div class="navbar-header">
@@ -50,13 +55,14 @@
                     <br>
                     <ul>
                     {% for song in song_list %}
-                    <li><a href="{% url 'scontent' song.id search_words %}">{{song.song_name}}</a>
-                        <p>
-                            {{song.song_content|safe|truncatechars:300}}
-                        </p>
+                    <li><a href="{% url 'scontent' song.id search_words %}">{{song.song_name}}</a><br>
+                      
+                            {{song.song_content|safe|truncatechars:200}}
+                       
                     </li>
                     {% endfor %}
                 </div>
+            }
         {% endif %}
     {% else %}
         <span>No words are found.</span>
