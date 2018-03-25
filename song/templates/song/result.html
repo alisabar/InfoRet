@@ -14,14 +14,17 @@
 {% else %}
     {% if song_list %}
         {% if search_words %}
+
            
             <script type="text/javascript">
                 $("document").ready(function(){
+
                    var song;
                    var re;
                    var words="{{search_words}}";
                    var songs_len="{{song_list|length}}";
                    words=words.split();
+
                    words=words[0].split(',');
                    for(k=0; k<songs_len; k++){
                        song= $(".container ul li:eq("+k+")").html();
@@ -34,6 +37,7 @@
                         $(".container ul li:eq("+k+")").html(song);  
                    }
                 });    
+
 
             </script>
         

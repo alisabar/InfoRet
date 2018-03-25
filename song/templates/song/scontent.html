@@ -17,6 +17,7 @@
       {% if words %}
         <script type="text/javascript">
            $("document").ready(function(){
+
             var re;
             var words="{{words}}";
             words=words.split();
@@ -28,6 +29,7 @@
                 song=song.replace( re, "<b>"+words[i]+"</b>");
                 
             }   
+
              $("#song").html(song);
            });
          </script>

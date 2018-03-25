@@ -464,7 +464,7 @@ def near(word1,word2,dis):
             for i2 in indexes2:
                 i1=i1.replace('[',' ').replace(']',' ').replace(',',' ')
                 i2=i2.replace('[',' ').replace(']',' ').replace(',',' ')
-                if(int(dis)>=abs(int(i1)-int(i2))):
+                if(int(dis)+1>=abs(int(i1)-int(i2))):
                     ids.append(i.id)
 
   results=Songs.objects.filter(id__in=ids) 
