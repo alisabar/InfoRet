@@ -197,7 +197,7 @@ def parse_url(song_url):
     song_content=str(body)
     song_content= song_content.replace('<div class="dn" id="content_h">',' ').replace('</div>',' ').replace('<br/>',' <br>')
     song_content=clean_text(song_content)
-        
+    print(len(song_content))    
     #title = tree.xpath('//h1[@class="firstHeading"]/text()')
    # body= tree.xpath('//div[@class="mw-parser-output"]/p[14]/text()')
     context = {
