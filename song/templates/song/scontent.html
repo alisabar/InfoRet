@@ -20,9 +20,11 @@
            
              var words="{{words}}";
              words=words.split();
-             var song= $("#song").html();
+             words=words[0].split(",");
+             var song=$("#song").html();
              for (i = 0; i < words.length; i++) { 
-                  song=song.replace( words[i], "<b>"+words[i]+"</b>");
+                    var re= new RegExp(words[i],"gi");
+                  song=song.replace(re,"<b>"+words[i]+"</b>");
               }   
              $("#song").html(song);
            });

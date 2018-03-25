@@ -15,16 +15,20 @@
     {% if song_list %}
         {% if search_words %}
          <script type="text/javascript">
+             
              $("document").ready(function(){
                    var song;
                    var words="{{search_words}}";
                    var songs="{{song_list}}";
                    words=words.split();
+                   words=words[0].split(",");
                    for(k=0; k<songs.length; k++){
-                       song= $("ul li:eq("+k+"),(p)").html();
+                       song= $("ul li:eq("+k+") p").html();
                        for (i = 0; i < words.length; i++) { 
                             for(j = 0; j < song.length; j++) { 
-                                song=song.replace( words[i], "<b>"+words[i]+"</b>");
+                               var re= new RegExp(words[i],"gi");
+                               console.log(words[i]);
+                               song=song.replace(re,"<b>"+words[i]+"</b>");
                             }
                         }   
                        $("#song").html(song);
