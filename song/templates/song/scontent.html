@@ -1,3 +1,8 @@
+<script
+                src="https://code.jquery.com/jquery-1.12.4.min.js"
+                integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="
+                crossorigin="anonymous"></script>
+
 {% load bootstrap3 %}
 
 {# Load CSS and JavaScript #}
@@ -8,27 +13,42 @@
 {% bootstrap_messages %}
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>
 {% else %}
-    {% if song%}
- 
-    <nav class="navbar navbar-default">
-      <div class="container-fluid">
-        <div class="navbar-header">
-          <a class="navbar-brand" href="#">Songs Index</a>
-        </div>
-        <ul class="nav navbar-nav">
-          <li><a href="{% url 'searchindex' %}">search</a></li>
-          <li class="active"><a href="#">song</a></li>
-        </ul>
-      </div>
-    </nav>
-    <div class="container" style="padding: 1%" >
-            
-        <h3>{{song.author_name}}-{{song.song_name}}</h3>
-        <p>
-          {{song.song_content|safe}}
-        </p>
-    </div>
-    {% else %}
+    {% if song %}
+      {% if words %}
+        <script type="text/javascript">
+           $("document").ready(function(){
+           
+             var words="{{words}}";
+             words=words.split();
+             var song= $("#song").html();
+             for (i = 0; i < words.length; i++) { 
+                  song=song.replace( words[i], "<b>"+words[i]+"</b>");
+              }   
+             $("#song").html(song);
+           });
+         </script>
+            <nav class="navbar navbar-default">
+              <div class="container-fluid">
+                <div class="navbar-header">
+                  <a class="navbar-brand" href="#">Songs Index</a>
+                </div>
+                <ul class="nav navbar-nav">
+                  <li><a href="{% url 'searchindex' %}">search</a></li>
+                  <li class="active"><a href="#">song</a></li>
+                </ul>
+              </div>
+            </nav>
+            <div class="container" style="padding: 1%" >
+                    
+              <h3>{{song.author_name}}-{{song.song_name}}</h3>
+              <p id="song">
+                {{song.song_content|safe}}
+              </p>
+            </div>
+      {% else %}
         <p>No words are found.</p>
+      {% endif %}
+    {% else %}
+      <p>No song are found.</p>
     {% endif %}
 {% endif %}

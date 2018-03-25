@@ -70,7 +70,7 @@ def wordwasdeleted(request):
     return render(request,'song/wasdeleted.html')
 
 def create_posting_file(word_exists ,song, indexes, numbers):
-    new_song_of_the_word=Songofword(word=word_exists ,song=song, times=len(indexes), indexes=numbers)
+    new_song_of_the_word=Songofword(word=word_exists ,song=song, times=indexes, indexes=numbers)
     new_song_of_the_word.save()
     return 
 
@@ -80,26 +80,51 @@ def song_exists(song_name):
 def get_song(song_name):
     return Songs.objects.filter(song_name=song_name)[:1].get()
 
-def scontent(request,song_id):
+def scontent(request,song_id,search_words):
     try:
         song = Songs.objects.get(pk=song_id)
     except Songs.DoesNotExist:
         raise Http404("Document does not exist")
-
-    return render(request, 'song/scontent.html', {'song': song})
+    context={
+        'song': song,
+        'words':search_words,
+    }
+    return render(request, 'song/scontent.html', context)
 
 def clean_text(text):
 
     body=str(text)
     body= body.replace('a href',' ').replace('<div class="dn" id="content_h">',' ').replace('<br/>',' ').replace('</div>',' ')
     body=body.lower()
-
     return body.replace('.',' ').replace('!',' ').replace(',',' ').replace('?',' ').replace('(',' ').replace(')',' ').replace('-',' ').replace('*',' ').replace('–',' ').replace('[',' ').replace(']',' ').replace('\"',' ').replace('\'ll',' will ').replace('\'s',' ').replace('\'d',' would ').replace("'cause","because")      
+
+def create_index_array(sentence):
+    indexes=[]
+    words=sentence.split()
+    for i in range(0,len(words)):
+        indexes.append(words[i]);
+    return indexes
+
+def create_dict_index(indexes):
+
+    list_dict={}
+    for i in range(0,len(indexes)):
+        if indexes[i] not in list_dict:
+            list_dict[indexes[i]]=[i]
+        else:
+            list_dict[indexes[i]].append(i)
+    return list_dict
+
 
 def get_indexes(word,sentence):
     pattern="\\b"+word+"\\b"
-    indexes=0
-    indexes = [w.start() for w in re.finditer(pattern, sentence)]
+
+    indexes=[]
+    for word in sentence:
+
+
+        indexes = [w.start() for w in re.finditer(pattern, sentence)]
+
     return indexes
 
 def create_tables(request):
@@ -138,20 +163,25 @@ def create_tables(request):
             #get_song(song_name=detail_title) if 
             song=None
             if(song_exists(song_name=name)):
-                song=get_song(song_name=name)
+                    song=get_song(song_name=name)
             else:
                 if not(content_song_lyrics is None):
                     song=Songs(song_content=content_song_lyrics, song_name=name, author_name=author, song_url=url)
                     song.save()  
                 else:
                     p="no context"   
+            index_array=create_index_array(content_song_lyrics)
+            how_many_times_a_word_repeats=create_dict_index(index_array)
 
-          #  import pdb; pdb.set_trace()
-            for word in set(content_song_lyrics.split()):
-                indexes = get_indexes(word, content_song_lyrics);
+            content_song_lyrics=str(content_song_lyrics)
+            for word in index_array:
+
+                #indexes = get_indexes(word, content_song_lyrics);
+
+
                 #indexes = [w.start() for w in re.finditer(word, sentence)]
-                for i in range(len(indexes)):
-                    numbers=numbers+" "+str(indexes[i])
+               # for i in range(len(indexes)):
+                  #  numbers=numbers+" "+str(indexes[i])
                 
                 #get or create word
                 dbWord=None
@@ -164,8 +194,11 @@ def create_tables(request):
                 
                 #add relation word<-> dong , if not exits
                 if(dbWord.songs.filter(song_name=name).count()==0):
-                    create_posting_file( dbWord ,song, indexes, numbers)
-                indexes=0
+
+                    create_posting_file( dbWord ,song, len(how_many_times_a_word_repeats[word]), how_many_times_a_word_repeats[word])
+                    indexes=0
+                
+
                 #reset state
                 numbers=''
         else:        
@@ -289,11 +322,19 @@ def search(request):
 
     for i in ids:
         songlist.append(Songs.objects.get(id=i))
-   
-    important_words=search_words
-    
 
-    return render(request, 'song/result.html', {'song_list': songlist})
+    important_words=search_words
+
+
+    str1 = ','.join(str(e) for e in words)
+    context={
+        'song_list': songlist,
+        'search_words': str1,
+    }
+
+
+
+    return render(request, 'song/result.html', context)
 
 
 
@@ -356,7 +397,7 @@ def words(request):
     return render(request, 'song/words.html', {'song': songwords})
                
 def make_word_bold(song_text, words):
-    
+
     str_song=song_text.split()
     for j in words:
         for i in str_song:
