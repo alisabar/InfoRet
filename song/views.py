@@ -11,7 +11,7 @@ from django.utils.datastructures import MultiValueDictKeyError
 from django.db.models import Q
 
 # Create your views here.
-important_words=[]
+
 
 def index(request):
 
@@ -323,10 +323,9 @@ def search(request):
     for i in ids:
         songlist.append(Songs.objects.get(id=i))
 
-    important_words=search_words
 
 
-    str1 = ','.join(str(e) for e in words)
+    str1 = ','.join(str(e) for e in search_words)
     context={
         'song_list': songlist,
         'search_words': str1,
@@ -463,9 +462,9 @@ def near(word1,word2,dis):
         indexes2=indexes2[0].indexes.split()
         for i1 in indexes1:
             for i2 in indexes2:
-                dis1=int(i1)
-                dis2=int(i2)
-                if(dis>=abs(dis1-dis2)):
+                i1=i1.replace('[',' ').replace(']',' ').replace(',',' ')
+                i2=i2.replace('[',' ').replace(']',' ').replace(',',' ')
+                if(int(dis)>=abs(int(i1)-int(i2))):
                     ids.append(i.id)
 
   results=Songs.objects.filter(id__in=ids) 
